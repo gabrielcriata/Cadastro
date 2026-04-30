@@ -9,7 +9,7 @@ function mostrarToast(mensagem, tipo = 'success') {
     setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 3000);
 }
 
-// --- MÁSCARAS DE INPUT ---
+// --- MÁSCARAS E BUSCA DE CEP ---
 const inputCPF = document.getElementById('cpf');
 if (inputCPF) {
     inputCPF.addEventListener('input', (e) => {
@@ -28,6 +28,34 @@ if (inputSalario) {
         v = (Number(v) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         e.target.value = v;
     });
+}
+
+const inputCEP = document.getElementById('cep');
+if (inputCEP) {
+    inputCEP.addEventListener('input', (e) => {
+        let v = e.target.value.replace(/\D/g, "");
+        v = v.replace(/^(\d{5})(\d)/, "$1-$2");
+        e.target.value = v;
+    });
+}
+
+async function buscarCEP(cep) {
+    const cepLimpo = cep.replace(/\D/g, '');
+    if (cepLimpo.length === 8) {
+        try {
+            const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+            const data = await response.json();
+            if (!data.erro) {
+                document.getElementById('logradouro').value = data.logradouro;
+                document.getElementById('bairro').value = data.bairro;
+                document.getElementById('cidade').value = data.localidade;
+                document.getElementById('uf').value = data.uf;
+                document.getElementById('numeroEnd').focus(); 
+            } else {
+                mostrarToast('CEP não encontrado.', 'error');
+            }
+        } catch (error) { mostrarToast('Erro ao buscar o CEP.', 'error'); }
+    }
 }
 
 // --- LÓGICA DE STATUS E DEMISSÃO ---
@@ -65,7 +93,7 @@ function adicionarDependente(nome = '', nascimento = '') {
             <label>Nascimento</label>
             <input type="date" class="dep-nasc" value="${nascimento}">
         </div>
-        <button type="button" class="btn-acao btn-excluir" onclick="removerDependente(${contadorDependentes})" style="height: 48px; margin-bottom: 2px;">Remover</button>
+        <button type="button" class="btn-acao btn-excluir btn-remover-dep" onclick="removerDependente(${contadorDependentes})">Remover</button>
     `;
     container.appendChild(div);
 }
@@ -246,7 +274,7 @@ function atualizarTabela() {
             <td>${func.cargo || ''}</td>
             <td>
                 <div class="acoes-container">
-                    <button class="btn-acao btn-perfil" onclick="verPerfil(${func.id})">Perfil</button>
+                    <button class="btn-acao btn-perfil" onclick="verPerfil(${func.id})">Perfil / Imprimir</button>
                     <button class="btn-acao btn-editar" onclick="prepararEdicao(${func.id})">Editar</button>
                     <button class="btn-acao btn-excluir" onclick="excluirFuncionario(${func.id})">Excluir</button>
                 </div>
@@ -281,10 +309,20 @@ function prepararEdicao(id) {
         setVal('cargo', func.cargo);
         setVal('salario', func.salario);
 
-        // Novos campos
         setVal('nomeMae', func.filiacao?.mae);
         setVal('nomePai', func.filiacao?.pai);
-        setVal('endereco', func.endereco);
+        
+        if (func.endereco && typeof func.endereco === 'object') {
+            setVal('cep', func.endereco.cep);
+            setVal('logradouro', func.endereco.logradouro);
+            setVal('numeroEnd', func.endereco.numero);
+            setVal('bairro', func.endereco.bairro);
+            setVal('cidade', func.endereco.cidade);
+            setVal('uf', func.endereco.uf);
+        } else {
+            setVal('logradouro', func.endereco); 
+        }
+
         setVal('rg', func.documentosBasicos?.rg);
         setVal('pis', func.documentosBasicos?.pis);
         setVal('reservista', func.documentosBasicos?.reservista);
@@ -325,6 +363,11 @@ function verPerfil(id) {
         const dataNascFmt = func.nascimento ? formatarDataBR(func.nascimento) : '-';
         const badgeClass = (func.status || 'Ativo').replace(/\s+/g, '');
         
+        let enderecoFormatado = '-';
+        if (func.endereco && typeof func.endereco === 'object' && func.endereco.logradouro) {
+            enderecoFormatado = `${func.endereco.logradouro}, ${func.endereco.numero} - ${func.endereco.bairro}. ${func.endereco.cidade}/${func.endereco.uf}. CEP: ${func.endereco.cep}`;
+        } else { enderecoFormatado = func.endereco || '-'; }
+
         let htmlDocs = '';
         if (func.documentos?.rg) htmlDocs += `<div class="doc-item"><span>📄 RG/CPF: <strong>${func.documentos.rg.nome}</strong></span><a href="${func.documentos.rg.base64}" download="${func.documentos.rg.nome}" class="btn-acao btn-perfil">Baixar</a></div>`;
         if (func.documentos?.ctps) htmlDocs += `<div class="doc-item"><span>📘 CTPS: <strong>${func.documentos.ctps.nome}</strong></span><a href="${func.documentos.ctps.base64}" download="${func.documentos.ctps.nome}" class="btn-acao btn-perfil">Baixar</a></div>`;
@@ -336,52 +379,69 @@ function verPerfil(id) {
                 htmlDependentes += `<li><strong>${d.nome}</strong> - Nasc: ${formatarDataBR(d.nascimento)}</li>`;
             });
             htmlDependentes = `<ul class="lista-simples" style="margin-top:0;">${htmlDependentes}</ul>`;
-        } else {
-            htmlDependentes = '<p style="color: #718096;">Nenhum dependente cadastrado.</p>';
-        }
+        } else { htmlDependentes = '<p style="color: #718096; padding: 10px 0;">Nenhum dependente cadastrado.</p>'; }
 
+        // MÁGICA DA IMPRESSÃO: Estrutura preparada tanto para visualização web quanto para impressão formal de RH.
         conteiner.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 5px;">
-                <h2 style="font-size: 26px; margin:0;">${func.nome}</h2>
-                <span class="badge badge-${badgeClass}">${func.status || 'Ativo'}</span>
+            <div class="print-header-oficial">
+                <h1 style="text-align: center; font-size: 20px; font-weight: bold; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px;">FICHA DE REGISTRO DE EMPREGADO</h1>
             </div>
-            <p style="color: #718096; font-size: 16px;">${func.cargo} • ${func.departamento}</p>
+
+            <div class="web-cabecalho-perfil" style="display: flex; align-items: center; gap: 15px; margin-bottom: 5px;">
+                <h2 style="font-size: 26px; margin:0;">${func.nome}</h2>
+                <span class="badge badge-${badgeClass} hide-on-print">${func.status || 'Ativo'}</span>
+            </div>
+            <p class="web-cabecalho-perfil" style="color: #718096; font-size: 16px;">${func.cargo} • ${func.departamento}</p>
             ${func.status === 'Demitido' ? `<p style="color: #B23434; font-weight: bold; margin-top: 5px;">Demitido em: ${formatarDataBR(func.dataDemissao)}</p>` : ''}
             
-            <hr style="border: none; border-top: 1px solid #E2E8F0; margin: 20px 0;">
+            <hr class="hide-on-print" style="border: none; border-top: 1px solid #E2E8F0; margin: 20px 0;">
             
-            <h3 style="margin-bottom: 15px; font-size: 18px; color: var(--primaria);">Dados Pessoais</h3>
-            <div class="perfil-grid">
-                <div class="perfil-info"><strong>CPF</strong><p>${func.cpf}</p></div>
-                <div class="perfil-info"><strong>Nascimento</strong><p>${dataNascFmt}</p></div>
-                <div class="perfil-info"><strong>Mãe</strong><p>${func.filiacao?.mae || '-'}</p></div>
-                <div class="perfil-info"><strong>Pai</strong><p>${func.filiacao?.pai || '-'}</p></div>
-            </div>
-            <div class="perfil-info" style="margin-bottom: 20px;"><strong>Endereço</strong><p>${func.endereco || '-'}</p></div>
-
-            <h3 style="margin-bottom: 15px; font-size: 18px; color: var(--primaria);">Documentos</h3>
-            <div class="perfil-grid">
-                <div class="perfil-info"><strong>RG</strong><p>${func.documentosBasicos?.rg || '-'}</p></div>
-                <div class="perfil-info"><strong>PIS</strong><p>${func.documentosBasicos?.pis || '-'}</p></div>
-                <div class="perfil-info"><strong>Reservista</strong><p>${func.documentosBasicos?.reservista || '-'}</p></div>
-                <div class="perfil-info"><strong>CTPS</strong><p>${func.documentosBasicos?.ctps?.numero || '-'} / ${func.documentosBasicos?.ctps?.serie || '-'}</p></div>
-                <div class="perfil-info"><strong>Eleitor</strong><p>${func.documentosBasicos?.eleitor?.numero || '-'} (Z: ${func.documentosBasicos?.eleitor?.zona || '-'} / S: ${func.documentosBasicos?.eleitor?.secao || '-'})</p></div>
+            <h3 class="print-section-title" style="margin-bottom: 15px; font-size: 18px; color: var(--primaria);">Dados Pessoais e Endereço</h3>
+            <div class="perfil-grid print-grid">
+                <div class="perfil-info print-box"><strong>Nome</strong><p class="print-only">${func.nome}</p><p class="hide-on-print">${func.nome}</p></div>
+                <div class="perfil-info print-box"><strong>CPF</strong><p>${func.cpf}</p></div>
+                <div class="perfil-info print-box"><strong>Nascimento</strong><p>${dataNascFmt}</p></div>
+                <div class="perfil-info print-box" style="grid-column: span 2;"><strong>Endereço</strong><p>${enderecoFormatado}</p></div>
+                <div class="perfil-info print-box"><strong>Mãe</strong><p>${func.filiacao?.mae || '-'}</p></div>
+                <div class="perfil-info print-box"><strong>Pai</strong><p>${func.filiacao?.pai || '-'}</p></div>
             </div>
 
-            <h3 style="margin-bottom: 15px; font-size: 18px; color: var(--primaria);">Contrato e Banco</h3>
-            <div class="perfil-grid">
-                <div class="perfil-info"><strong>Admissão</strong><p>${formatarDataBR(func.dataAdmissao)}</p></div>
-                <div class="perfil-info"><strong>Salário</strong><p>${func.salario || '-'}</p></div>
-                <div class="perfil-info"><strong>Banco / Agência</strong><p>${func.dadosBancarios?.banco || '-'} / ${func.dadosBancarios?.agencia || '-'}</p></div>
-                <div class="perfil-info"><strong>Conta / PIX</strong><p>${func.dadosBancarios?.conta || '-'} / ${func.dadosBancarios?.chavePix || '-'}</p></div>
+            <h3 class="print-section-title" style="margin-bottom: 15px; margin-top: 25px; font-size: 18px; color: var(--primaria);">Documentação</h3>
+            <div class="perfil-grid print-grid">
+                <div class="perfil-info print-box"><strong>RG</strong><p>${func.documentosBasicos?.rg || '-'}</p></div>
+                <div class="perfil-info print-box"><strong>PIS</strong><p>${func.documentosBasicos?.pis || '-'}</p></div>
+                <div class="perfil-info print-box"><strong>Reservista</strong><p>${func.documentosBasicos?.reservista || '-'}</p></div>
+                <div class="perfil-info print-box"><strong>CTPS / Série</strong><p>${func.documentosBasicos?.ctps?.numero || '-'} / ${func.documentosBasicos?.ctps?.serie || '-'}</p></div>
+                <div class="perfil-info print-box" style="grid-column: span 2;"><strong>Título de Eleitor (Nº - Zona/Seção)</strong><p>${func.documentosBasicos?.eleitor?.numero || '-'} (Z: ${func.documentosBasicos?.eleitor?.zona || '-'} / S: ${func.documentosBasicos?.eleitor?.secao || '-'})</p></div>
             </div>
 
-            <h3 style="margin-bottom: 15px; font-size: 18px; color: var(--primaria);">Dependentes</h3>
-            <div class="perfil-info" style="margin-bottom: 20px;">${htmlDependentes}</div>
+            <h3 class="print-section-title" style="margin-bottom: 15px; margin-top: 25px; font-size: 18px; color: var(--primaria);">Contrato e Dados Bancários</h3>
+            <div class="perfil-grid print-grid">
+                <div class="perfil-info print-box"><strong>Cargo</strong><p>${func.cargo}</p></div>
+                <div class="perfil-info print-box"><strong>Departamento</strong><p>${func.departamento}</p></div>
+                <div class="perfil-info print-box"><strong>Admissão</strong><p>${formatarDataBR(func.dataAdmissao)}</p></div>
+                <div class="perfil-info print-box"><strong>Salário</strong><p>${func.salario || '-'}</p></div>
+                <div class="perfil-info print-box"><strong>Banco / Agência</strong><p>${func.dadosBancarios?.banco || '-'} / ${func.dadosBancarios?.agencia || '-'}</p></div>
+                <div class="perfil-info print-box"><strong>Conta / PIX</strong><p>${func.dadosBancarios?.conta || '-'} / ${func.dadosBancarios?.chavePix || '-'}</p></div>
+            </div>
 
-            <div class="area-documentos-perfil">
-                <strong>Arquivos Anexados</strong>
+            <h3 class="print-section-title" style="margin-bottom: 15px; margin-top: 25px; font-size: 18px; color: var(--primaria);">Dependentes</h3>
+            <div class="perfil-info print-box" style="margin-bottom: 20px;">${htmlDependentes}</div>
+
+            <div class="area-documentos-perfil hide-on-print">
+                <strong>Arquivos Anexados (Não aparecem na impressão)</strong>
                 ${htmlDocs}
+            </div>
+
+            <div class="print-signatures-oficial">
+                <div class="linha-assinatura">
+                    <hr>
+                    <p>Assinatura do Empregado</p>
+                </div>
+                <div class="linha-assinatura">
+                    <hr>
+                    <p>Assinatura do Empregador</p>
+                </div>
             </div>
         `;
         mudarAba(null, 'tela-perfil');
@@ -422,7 +482,6 @@ if (form) {
 
         const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
 
-        // Captura Dependentes Dinâmicos
         const dependentesArray = [];
         document.querySelectorAll('.dependente-item').forEach(item => {
             const n = item.querySelector('.dep-nome').value;
@@ -435,17 +494,15 @@ if (form) {
 
         const novoFunc = {
             id: idEditando !== null ? idEditando : Date.now(),
-            nome: getVal('nome'),
-            cpf: getVal('cpf'),
-            nascimento: getVal('dataNascimento'),
-            dataAdmissao: getVal('dataAdmissao'),
-            status: getVal('statusFunc'),
+            nome: getVal('nome'), cpf: getVal('cpf'), nascimento: getVal('dataNascimento'),
+            dataAdmissao: getVal('dataAdmissao'), status: getVal('statusFunc'),
             dataDemissao: getVal('statusFunc') === 'Demitido' ? getVal('dataDemissao') : '',
-            departamento: getVal('departamento'),
-            cargo: getVal('cargo'),
-            salario: getVal('salario'),
+            departamento: getVal('departamento'), cargo: getVal('cargo'), salario: getVal('salario'),
             filiacao: { mae: getVal('nomeMae'), pai: getVal('nomePai') },
-            endereco: getVal('endereco'),
+            endereco: {
+                cep: getVal('cep'), logradouro: getVal('logradouro'), numero: getVal('numeroEnd'), 
+                bairro: getVal('bairro'), cidade: getVal('cidade'), uf: getVal('uf')
+            },
             documentosBasicos: {
                 rg: getVal('rg'), pis: getVal('pis'), reservista: getVal('reservista'),
                 ctps: { numero: getVal('ctpsNumero'), serie: getVal('ctpsSerie') },
@@ -454,8 +511,7 @@ if (form) {
             dadosBancarios: {
                 banco: getVal('banco'), agencia: getVal('agencia'), conta: getVal('conta'), chavePix: getVal('chavePix')
             },
-            dependentes: dependentesArray,
-            documentos: {}
+            dependentes: dependentesArray, documentos: {}
         };
 
         let funcSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
@@ -468,7 +524,6 @@ if (form) {
         } else {
             const index = funcSalvos.findIndex(f => f.id === idEditando);
             if (index !== -1) {
-                // Mantém documentos antigos se não enviar novos
                 novoFunc.documentos.rg = arquivoRG ? arquivoRG : funcSalvos[index].documentos?.rg;
                 novoFunc.documentos.ctps = arquivoCTPS ? arquivoCTPS : funcSalvos[index].documentos?.ctps;
                 funcSalvos[index] = novoFunc;
@@ -480,10 +535,7 @@ if (form) {
         }
 
         localStorage.setItem('listaFuncionarios', JSON.stringify(funcSalvos));
-        form.reset();
-        limparDependentes();
-        verificarStatus();
-        atualizarTabela(); 
+        form.reset(); limparDependentes(); verificarStatus(); atualizarTabela(); 
         
         const btnEquipe = document.querySelectorAll('.menu-item')[2];
         if (btnEquipe) btnEquipe.click();
