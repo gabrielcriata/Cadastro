@@ -1,232 +1,275 @@
-// --- LÓGICA DE NAVEGAÇÃO ENTRE AS TELAS ---
+// --- NAVEGAÇÃO ---
 function mudarAba(evento, idAbaDestino) {
-    // 1. Remove a classe 'ativa' de todos os botões do menu
     const botoesMenu = document.querySelectorAll('.menu-item');
     botoesMenu.forEach(botao => botao.classList.remove('ativo'));
-
-    // 2. Remove a classe 'ativa' de todas as telas (abas)
     const telas = document.querySelectorAll('.aba');
     telas.forEach(tela => tela.classList.remove('ativa'));
-
-    // 3. Se o clique veio do menu lateral, marca o botão como ativo
     if (evento && evento.target && evento.target.classList.contains('menu-item')) {
         evento.target.classList.add('ativo');
     }
-
-    // 4. Mostra a tela de destino
     document.getElementById(idAbaDestino).classList.add('ativa');
 }
 
-
-// --- LÓGICA DO CADASTRO, TABELA E PERFIL ---
 const form = document.getElementById('formFuncionario');
 const btnSubmit = document.getElementById('btnSubmit');
-
 let idEditando = null;
 
+// --- FUNÇÕES DO DASHBOARD ---
+function formatarDataBR(dataISO) {
+    const partes = dataISO.split('-');
+    return partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : dataISO;
+}
+
+function atualizarDashboard(funcionarios) {
+    // 1. Contadores
+    document.getElementById('contador-funcionarios').innerText = funcionarios.length;
+    
+    const emFerias = funcionarios.filter(f => f.status === 'Férias').length;
+    document.getElementById('contador-ferias').innerText = emFerias;
+
+    // 2. Aniversariantes do Mês Atual
+    const dataHoje = new Date();
+    // Como os meses no JavaScript começam em 0 (Janeiro = 0), adicionamos +1
+    const mesAtual = String(dataHoje.getMonth() + 1).padStart(2, '0'); 
+    
+    const listaNiver = document.getElementById('lista-aniversariantes');
+    listaNiver.innerHTML = '';
+    
+    let encontrouNiver = false;
+    funcionarios.forEach(func => {
+        if (func.nascimento) {
+            const mesNascimento = func.nascimento.split('-')[1]; // Pega só o mês da data YYYY-MM-DD
+            if (mesNascimento === mesAtual) {
+                encontrouNiver = true;
+                const diaNasc = func.nascimento.split('-')[2];
+                listaNiver.innerHTML += `<li>🎈 <strong>Dia ${diaNasc}</strong> - ${func.nome}</li>`;
+            }
+        }
+    });
+    if (!encontrouNiver) listaNiver.innerHTML = '<li>Nenhum aniversário este mês.</li>';
+
+    // 3. Prazos Inteligentes (Alerta 5 dias antes)
+    const diaHoje = dataHoje.getDate();
+    
+    const boxEsocial = document.getElementById('alerta-esocial');
+    // Se for entre o dia 10 e 15, fica vermelho!
+    if (diaHoje >= 10 && diaHoje <= 15) {
+        boxEsocial.style.backgroundColor = '#fed7d7';
+        boxEsocial.style.color = '#c53030';
+        boxEsocial.style.borderLeft = '4px solid #e53e3e';
+        boxEsocial.innerHTML = '<strong>⚠️ URGENTE:</strong> Enviar eSocial (Vence dia 15!)';
+    } else {
+        boxEsocial.style.backgroundColor = '#ebf8fa';
+        boxEsocial.style.color = '#234e52';
+        boxEsocial.style.borderLeft = '4px solid #38b2ac';
+        boxEsocial.innerHTML = '<strong>Dia 15:</strong> Enviar fechamento eSocial';
+    }
+
+    const boxFgts = document.getElementById('alerta-fgts');
+    // Se for entre o dia 15 e 20, fica vermelho!
+    if (diaHoje >= 15 && diaHoje <= 20) {
+        boxFgts.style.backgroundColor = '#fed7d7';
+        boxFgts.style.color = '#c53030';
+        boxFgts.style.borderLeft = '4px solid #e53e3e';
+        boxFgts.innerHTML = '<strong>⚠️ URGENTE:</strong> Pagar DARF/FGTS (Vence dia 20!)';
+    } else {
+        boxFgts.style.backgroundColor = '#ebf8fa';
+        boxFgts.style.color = '#234e52';
+        boxFgts.style.borderLeft = '4px solid #38b2ac';
+        boxFgts.innerHTML = '<strong>Dia 20:</strong> Vencimento DARF / FGTS';
+    }
+}
+
+// --- LÓGICA DO BLOCO DE NOTAS ---
+const blocoNotas = document.getElementById('blocoNotas');
+// Quando a página carrega, puxa o texto salvo
+blocoNotas.value = localStorage.getItem('notasRH') || '';
+// Sempre que você digitar algo, ele salva automaticamente
+blocoNotas.addEventListener('input', function() {
+    localStorage.setItem('notasRH', this.value);
+});
+
+
+// --- TABELA ---
 function atualizarTabela() {
     const tbody = document.querySelector('#tabelaFuncionarios tbody');
     tbody.innerHTML = ''; 
 
     let funcionariosSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
-
-    // Atualiza o contador do Dashboard
-    document.getElementById('contador-funcionarios').innerText = funcionariosSalvos.length;
+    
+    // Atualiza os dados da tela inicial
+    atualizarDashboard(funcionariosSalvos);
 
     funcionariosSalvos.forEach(function(func) {
         const tr = document.createElement('tr');
+        
+        // Proteção para funcionários antigos que não tinham status cadastrado
+        const statusExibicao = func.status || 'Ativo'; 
+        const badgeStatus = `<span class="badge badge-${statusExibicao}">${statusExibicao}</span>`;
 
-        const partesData = func.dataAdmissao.split('-');
-        const dataFormatada = partesData.length === 3 ? `${partesData[2]}/${partesData[1]}/${partesData[0]}` : func.dataAdmissao;
-        const salarioFormatado = parseFloat(func.salario).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
-        let linkDoc = '<span style="color: #a0aec0; font-size: 12px;">Sem anexo</span>';
-        if (func.documento) {
-            linkDoc = `<a href="${func.documento}" download="doc_${func.nome.replace(/\s+/g, '_')}" class="link-documento">Baixar</a>`;
-        }
-
-        // NOVIDADE: Botão 'Ver Perfil' adicionado
         tr.innerHTML = `
+            <td>${badgeStatus}</td>
             <td><strong>${func.nome}</strong></td>
-            <td>${func.cpf}</td>
             <td>${func.cargo}</td>
-            <td>${func.departamento}</td>
-            <td>${dataFormatada}</td>
-            <td>${salarioFormatado}</td>
-            <td>${linkDoc}</td>
+            <td>${formatarDataBR(func.dataAdmissao)}</td>
             <td>
                 <div class="acoes-container">
-                    <button class="btn-acao btn-perfil" onclick="verPerfil(${func.id})">Ver Perfil</button>
+                    <button class="btn-acao btn-perfil" onclick="verPerfil(${func.id})">Perfil</button>
                     <button class="btn-acao btn-editar" onclick="prepararEdicao(${func.id})">Editar</button>
                     <button class="btn-acao btn-excluir" onclick="excluirFuncionario(${func.id})">Excluir</button>
                 </div>
             </td>
         `;
-
         tbody.appendChild(tr);
     });
 }
 
 function excluirFuncionario(id) {
     if (confirm("Tem certeza que deseja excluir este funcionário?")) {
-        let funcionariosSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
-        funcionariosSalvos = funcionariosSalvos.filter(func => func.id !== id);
-        localStorage.setItem('listaFuncionarios', JSON.stringify(funcionariosSalvos));
+        let funcSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
+        funcSalvos = funcSalvos.filter(f => f.id !== id);
+        localStorage.setItem('listaFuncionarios', JSON.stringify(funcSalvos));
         atualizarTabela();
     }
 }
 
 function prepararEdicao(id) {
-    let funcionariosSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
-    const func = funcionariosSalvos.find(f => f.id === id);
+    let funcSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
+    const func = funcSalvos.find(f => f.id === id);
 
     if (func) {
         document.getElementById('nome').value = func.nome;
         document.getElementById('cpf').value = func.cpf;
+        document.getElementById('dataNascimento').value = func.nascimento || ''; // Puxa data nova se tiver
         document.getElementById('dataAdmissao').value = func.dataAdmissao;
+        document.getElementById('statusFunc').value = func.status || 'Ativo';
         document.getElementById('departamento').value = func.departamento;
         document.getElementById('cargo').value = func.cargo;
         document.getElementById('salario').value = func.salario;
         
         idEditando = id;
-        
         btnSubmit.textContent = "Salvar Alterações";
         btnSubmit.style.background = "linear-gradient(135deg, #f6ad55 0%, #ed8936 100%)";
-        
-        // Simula o clique no menu para ir para a tela de Admissão
         document.querySelectorAll('.menu-item')[1].click();
     }
 }
 
-// NOVIDADE: Função que monta a ficha completa do funcionário e troca para a tela do perfil
+// --- VER PERFIL ---
 function verPerfil(id) {
-    let funcionariosSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
-    const func = funcionariosSalvos.find(f => f.id === id);
+    let funcSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
+    const func = funcSalvos.find(f => f.id === id);
 
     if (func) {
-        const conteinerPerfil = document.getElementById('conteudo-perfil');
+        const conteiner = document.getElementById('conteudo-perfil');
+        const salarioBR = parseFloat(func.salario).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        const dataNascFmt = func.nascimento ? formatarDataBR(func.nascimento) : 'Não informado';
+        const statusBadge = `<span class="badge badge-${func.status || 'Ativo'}">${func.status || 'Ativo'}</span>`;
 
-        const partesData = func.dataAdmissao.split('-');
-        const dataFormatada = partesData.length === 3 ? `${partesData[2]}/${partesData[1]}/${partesData[0]}` : func.dataAdmissao;
-        const salarioFormatado = parseFloat(func.salario).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
-        // Prepara a área do documento
-        let areaDocHTML = '<p style="color: #a0aec0;">Nenhum documento anexado para este funcionário.</p>';
-        if (func.documento) {
-            areaDocHTML = `
-                <p style="margin-bottom: 15px; color: #4a5568; font-weight: 600;">Documento Armazenado</p>
-                <a href="${func.documento}" download="doc_${func.nome.replace(/\s+/g, '_')}" class="btn-cadastrar" style="display: inline-block; text-decoration: none; width: auto; padding: 10px 20px;">
-                    📥 Baixar Arquivo Anexo
-                </a>
-            `;
+        let htmlDocs = '';
+        if (func.documentos && func.documentos.rg) {
+            htmlDocs += `<div class="doc-item"><span>📄 RG/CPF: <strong>${func.documentos.rg.nome}</strong></span><a href="${func.documentos.rg.base64}" download="${func.documentos.rg.nome}" class="btn-acao btn-perfil">Baixar</a></div>`;
         }
+        if (func.documentos && func.documentos.ctps) {
+            htmlDocs += `<div class="doc-item"><span>📄 Carteira de Trabalho: <strong>${func.documentos.ctps.nome}</strong></span><a href="${func.documentos.ctps.base64}" download="${func.documentos.ctps.nome}" class="btn-acao btn-perfil">Baixar</a></div>`;
+        }
+        if (htmlDocs === '') htmlDocs = '<p style="color: #a0aec0; margin-top: 10px;">Nenhum documento anexado.</p>';
 
-        // Monta a ficha completa
-        conteinerPerfil.innerHTML = `
-            <h2 style="margin-bottom: 5px; font-size: 24px; color: #2b6cb0;">${func.nome}</h2>
-            <p style="color: #718096; font-size: 16px;">${func.cargo} • Departamento de ${func.departamento}</p>
-            
-            <hr style="border: none; border-top: 1px solid #edf2f7; margin: 20px 0;">
-
-            <div class="perfil-grid">
-                <div class="perfil-info">
-                    <strong>CPF</strong>
-                    <p>${func.cpf}</p>
-                </div>
-                <div class="perfil-info">
-                    <strong>Data de Admissão</strong>
-                    <p>${dataFormatada}</p>
-                </div>
-                <div class="perfil-info">
-                    <strong>Salário Bruto</strong>
-                    <p>${salarioFormatado}</p>
-                </div>
+        conteiner.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 5px;">
+                <h2 style="font-size: 24px; color: #2b6cb0; margin:0;">${func.nome}</h2>
+                ${statusBadge}
             </div>
-
-            <div class="area-documento">
-                ${areaDocHTML}
+            <p style="color: #718096; font-size: 16px;">${func.cargo} • Departamento de ${func.departamento}</p>
+            <hr style="border: none; border-top: 1px solid #edf2f7; margin: 20px 0;">
+            <div class="perfil-grid">
+                <div class="perfil-info"><strong>CPF</strong><p>${func.cpf}</p></div>
+                <div class="perfil-info"><strong>Nascimento</strong><p>${dataNascFmt}</p></div>
+                <div class="perfil-info"><strong>Admissão</strong><p>${formatarDataBR(func.dataAdmissao)}</p></div>
+                <div class="perfil-info"><strong>Salário Bruto</strong><p>${salarioBR}</p></div>
+            </div>
+            <div class="area-documentos-perfil">
+                <strong style="color: #4a5568;">Arquivos Anexados</strong>
+                ${htmlDocs}
             </div>
         `;
-
-        // Navega para a tela de perfil
         mudarAba(null, 'tela-perfil');
     }
 }
 
-// Inicia a tabela assim que a página carrega
+function exportarListaCSV() {
+    let funcSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
+    if (funcSalvos.length === 0) return alert("Nenhum funcionário cadastrado.");
+    
+    // Adicionado os novos campos no CSV (Status e Nascimento)
+    let csv = "Status,Nome,CPF,Data de Nascimento,Departamento,Cargo,Data de Admissao,Salario Bruto\n";
+    funcSalvos.forEach(f => {
+        csv += `"${f.status || 'Ativo'}","${f.nome}","${f.cpf}","${f.nascimento || ''}","${f.departamento}","${f.cargo}","${f.dataAdmissao}","${f.salario}"\n`;
+    });
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+    link.download = "lista_funcionarios.csv";
+    link.click();
+}
+
+function processarArquivo(inputElement) {
+    return new Promise((resolve) => {
+        if (!inputElement.files || inputElement.files.length === 0) resolve(null);
+        else {
+            const leitor = new FileReader();
+            leitor.onload = (e) => resolve({ nome: inputElement.files[0].name, base64: e.target.result });
+            leitor.readAsDataURL(inputElement.files[0]);
+        }
+    });
+}
+
 window.onload = atualizarTabela;
 
-// Lida com o envio do formulário de cadastro/edição
-form.addEventListener('submit', function(event) {
+// --- SALVAR DADOS ---
+form.addEventListener('submit', async function(event) {
     event.preventDefault();
 
     const nome = document.getElementById('nome').value.trim();
     const cpf = document.getElementById('cpf').value.trim();
+    const nascimento = document.getElementById('dataNascimento').value;
     const dataAdmissao = document.getElementById('dataAdmissao').value;
+    const status = document.getElementById('statusFunc').value;
     const departamento = document.getElementById('departamento').value.trim();
     const cargo = document.getElementById('cargo').value.trim();
     const salario = document.getElementById('salario').value;
-    const documentoInput = document.getElementById('documento');
 
-    if (!nome || !cpf || !dataAdmissao || !departamento || !cargo || !salario) {
-        alert('Por favor, preencha todos os campos obrigatórios.');
-        return;
-    }
+    const arquivoRG = await processarArquivo(document.getElementById('docRG'));
+    const arquivoCTPS = await processarArquivo(document.getElementById('docCTPS'));
 
-    function salvarDados(documentoBase64 = null) {
-        let funcionariosSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
+    let funcSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
 
-        if (idEditando === null) {
-            // É um novo cadastro
-            const novoFuncionario = {
-                id: Date.now(),
-                nome: nome,
-                cpf: cpf,
-                dataAdmissao: dataAdmissao,
-                departamento: departamento,
-                cargo: cargo,
-                salario: salario,
-                documento: documentoBase64
-            };
-            funcionariosSalvos.push(novoFuncionario);
-        } else {
-            // É uma edição
-            const index = funcionariosSalvos.findIndex(f => f.id === idEditando);
-            if (index !== -1) {
-                funcionariosSalvos[index].nome = nome;
-                funcionariosSalvos[index].cpf = cpf;
-                funcionariosSalvos[index].dataAdmissao = dataAdmissao;
-                funcionariosSalvos[index].departamento = departamento;
-                funcionariosSalvos[index].cargo = cargo;
-                funcionariosSalvos[index].salario = salario;
-                // Atualiza o documento apenas se um novo for selecionado
-                if (documentoBase64) {
-                    funcionariosSalvos[index].documento = documentoBase64;
-                }
-            }
-            
-            idEditando = null;
-            btnSubmit.textContent = "Cadastrar Funcionário";
-            btnSubmit.style.background = "linear-gradient(135deg, #4299e1 0%, #3182ce 100%)";
-        }
-
-        localStorage.setItem('listaFuncionarios', JSON.stringify(funcionariosSalvos));
-        form.reset();
-        atualizarTabela(); 
-        
-        // Simula o clique para voltar para a tela de Equipe após salvar
-        document.querySelectorAll('.menu-item')[2].click();
-    }
-
-    // Checa se tem arquivo para converter
-    if (documentoInput.files.length > 0) {
-        const arquivo = documentoInput.files[0];
-        const leitor = new FileReader();
-        leitor.onload = function(e) {
-            salvarDados(e.target.result);
-        };
-        leitor.readAsDataURL(arquivo);
+    if (idEditando === null) {
+        funcSalvos.push({
+            id: Date.now(), nome, cpf, nascimento, dataAdmissao, status, departamento, cargo, salario,
+            documentos: { rg: arquivoRG, ctps: arquivoCTPS }
+        });
     } else {
-        salvarDados(null);
+        const index = funcSalvos.findIndex(f => f.id === idEditando);
+        if (index !== -1) {
+            funcSalvos[index].nome = nome;
+            funcSalvos[index].cpf = cpf;
+            funcSalvos[index].nascimento = nascimento;
+            funcSalvos[index].dataAdmissao = dataAdmissao;
+            funcSalvos[index].status = status;
+            funcSalvos[index].departamento = departamento;
+            funcSalvos[index].cargo = cargo;
+            funcSalvos[index].salario = salario;
+            if (!funcSalvos[index].documentos) funcSalvos[index].documentos = {};
+            if (arquivoRG) funcSalvos[index].documentos.rg = arquivoRG;
+            if (arquivoCTPS) funcSalvos[index].documentos.ctps = arquivoCTPS;
+        }
+        idEditando = null;
+        btnSubmit.textContent = "Salvar Dados do Funcionário";
+        btnSubmit.style.background = "linear-gradient(135deg, #4299e1 0%, #3182ce 100%)";
     }
+
+    localStorage.setItem('listaFuncionarios', JSON.stringify(funcSalvos));
+    form.reset();
+    atualizarTabela(); 
+    document.querySelectorAll('.menu-item')[2].click();
 });
