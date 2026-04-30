@@ -25,13 +25,47 @@
         <!-- TELA 1: DASHBOARD -->
         <section id="tela-dashboard" class="aba ativa">
             <div class="header-tela">
-                <h1>Dashboard</h1>
-                <p>Visão geral do sistema</p>
+                <h1>Painel de Controle</h1>
+                <p>Visão geral do RH e Lembretes</p>
             </div>
-            <div class="cards-container">
-                <div class="card">
-                    <h3>Total de Funcionários</h3>
-                    <p id="contador-funcionarios">0</p>
+            
+            <div class="dashboard-grid">
+                <!-- Coluna da Esquerda: Cards de Resumo -->
+                <div class="coluna-cards">
+                    <div class="card">
+                        <h3>Total de Funcionários</h3>
+                        <p id="contador-funcionarios" class="destaque-azul">0</p>
+                    </div>
+                    <div class="card">
+                        <h3>🏖️ Funcionários em Férias</h3>
+                        <p id="contador-ferias" class="destaque-laranja">0</p>
+                    </div>
+                    <div class="card">
+                        <h3>🎂 Aniversariantes do Mês</h3>
+                        <ul id="lista-aniversariantes" class="lista-simples">
+                            <!-- JS preenche aqui -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Coluna da Direita: Agenda e Notas -->
+                <div class="coluna-ferramentas">
+                    <div class="card agenda-rh">
+                        <h3 style="margin-bottom: 15px;">📅 Prazos Importantes</h3>
+                        <div id="alerta-esocial" class="prazo-item">
+                            <strong>Dia 15:</strong> Enviar fechamento eSocial
+                        </div>
+                        <div id="alerta-fgts" class="prazo-item">
+                            <strong>Dia 20:</strong> Vencimento DARF / FGTS
+                        </div>
+                        <small style="color: #a0aec0; margin-top: 10px; display: block;">*Ficam vermelhos 5 dias antes do prazo.</small>
+                    </div>
+
+                    <div class="card notepad-container">
+                        <h3 style="margin-bottom: 10px;">📝 Anotações Rápida (Atrasos, Recados...)</h3>
+                        <textarea id="blocoNotas" placeholder="Ex: João chegou atrasado dia 10/05. Comprar bolo para Maria sexta-feira..."></textarea>
+                        <small style="color: #48bb78; margin-top: 5px; display: block;">✔️ Salvo automaticamente no navegador.</small>
+                    </div>
                 </div>
             </div>
         </section>
@@ -49,10 +83,28 @@
                         <label for="cpf">CPF</label>
                         <input type="text" id="cpf" required placeholder="000.000.000-00">
                     </div>
+                    
+                    <!-- NOVO CAMPO: Nascimento -->
+                    <div class="form-group">
+                        <label for="dataNascimento">Data de Nascimento</label>
+                        <input type="date" id="dataNascimento" required>
+                    </div>
+
                     <div class="form-group">
                         <label for="dataAdmissao">Data de Admissão</label>
                         <input type="date" id="dataAdmissao" required>
                     </div>
+                    
+                    <!-- NOVO CAMPO: Status -->
+                    <div class="form-group">
+                        <label for="statusFunc">Status Inicial</label>
+                        <select id="statusFunc" required class="input-padrao">
+                            <option value="Ativo">🟢 Ativo</option>
+                            <option value="Férias">🟠 De Férias</option>
+                            <option value="Afastado">🔴 Afastado</option>
+                        </select>
+                    </div>
+
                     <div class="form-group">
                         <label for="departamento">Departamento</label>
                         <input type="text" id="departamento" required placeholder="Ex: Tecnologia">
@@ -66,7 +118,6 @@
                         <input type="number" id="salario" step="0.01" required placeholder="Ex: 3500.00">
                     </div>
                     
-                    <!-- NOVOS CAMPOS DE DOCUMENTOS -->
                     <div class="form-group">
                         <label for="docRG">Cópia do RG/CPF</label>
                         <input type="file" id="docRG" accept=".pdf, image/jpeg, image/png">
@@ -76,7 +127,7 @@
                         <input type="file" id="docCTPS" accept=".pdf, image/jpeg, image/png">
                     </div>
 
-                    <button type="submit" class="btn-cadastrar" id="btnSubmit">Cadastrar Funcionário</button>
+                    <button type="submit" class="btn-cadastrar" id="btnSubmit">Salvar Dados do Funcionário</button>
                 </form>
             </div>
         </section>
@@ -86,18 +137,16 @@
             <div class="table-container">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <h2 style="margin-bottom: 0;">Funcionários Cadastrados</h2>
-                    <!-- NOVO BOTÃO: EXPORTAR LISTA -->
-                    <button class="btn-acao btn-perfil" onclick="exportarListaCSV()" style="padding: 10px 15px;">📥 Exportar Tabela (Excel)</button>
+                    <button class="btn-acao btn-perfil" onclick="exportarListaCSV()" style="padding: 10px 15px;">📥 Exportar Tabela</button>
                 </div>
                 
                 <table id="tabelaFuncionarios">
                     <thead>
                         <tr>
+                            <th>Status</th>
                             <th>Nome</th>
-                            <th>CPF</th>
                             <th>Cargo</th>
                             <th>Admissão</th>
-                            <th>Salário</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -108,16 +157,15 @@
             </div>
         </section>
 
-        <!-- TELA 4: PERFIL DO FUNCIONÁRIO -->
+        <!-- TELA 4: PERFIL -->
         <section id="tela-perfil" class="aba">
             <div class="header-tela cabecalho-perfil" style="display: flex; justify-content: space-between; align-items: center;">
                 <button class="btn-acao btn-voltar" onclick="mudarAba(null, 'tela-equipe')">← Voltar para Equipe</button>
-                <!-- NOVO BOTÃO: IMPRIMIR/PDF -->
-                <button class="btn-acao btn-imprimir" onclick="window.print()" style="background-color: #3182ce; padding: 10px 15px;">🖨️ Imprimir / Salvar PDF</button>
+                <button class="btn-acao btn-imprimir" onclick="window.print()" style="background-color: #3182ce; padding: 10px 15px;">🖨️ Imprimir Ficha</button>
             </div>
             
             <div class="container" id="conteudo-perfil" style="margin-top: 20px;">
-                <!-- O JavaScript vai injetar os dados do funcionário aqui -->
+                <!-- Preenchido pelo JS -->
             </div>
         </section>
 
