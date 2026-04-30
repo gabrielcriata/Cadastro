@@ -3,9 +3,9 @@
     --bg-fundo: #F2F5F8;
     --bg-card: #FFFFFF;
     --sidebar-bg: #FFFFFF;
-    --primaria: #8B3DFF; /* Roxo vibrante */
+    --primaria: #8B3DFF;
     --primaria-hover: #7224e0;
-    --secundaria: #00C4CC; /* Turquesa */
+    --secundaria: #00C4CC;
     --alerta: #FFB020;
     --perigo: #FF4A4A;
     --texto-escuro: #1A202C;
@@ -15,7 +15,7 @@
     --raio-card: 16px;
     --raio-btn: 10px;
     --sombra-card: 0 10px 25px rgba(0, 0, 0, 0.04);
-    --sombra-glow: 0 8px 20px rgba(139, 61, 255, 0.3); /* Sombra roxa esfumaçada */
+    --sombra-glow: 0 8px 20px rgba(139, 61, 255, 0.3);
 }
 
 /* === BASE === */
@@ -45,18 +45,17 @@ body { background-color: var(--bg-fundo); color: var(--texto-escuro); display: f
 .header-tela h1 { color: var(--texto-escuro); font-weight: 800; font-size: 30px; margin-bottom: 6px; letter-spacing: -0.5px; }
 .header-tela p { color: var(--texto-cinza); font-size: 16px; }
 
-/* === DASHBOARD CARDS (Com Círculos e Bordas Superiores) === */
+/* === DASHBOARD CARDS === */
 .dashboard-grid { display: flex; gap: 30px; align-items: flex-start; }
 .coluna-cards { display: flex; flex-direction: column; gap: 25px; flex: 1; }
 .coluna-ferramentas { display: flex; flex-direction: column; gap: 25px; flex: 1.5; }
 
 .card { background: var(--bg-card); padding: 30px; border-radius: var(--raio-card); box-shadow: var(--sombra-card); transition: transform 0.3s; border: 1px solid rgba(0,0,0,0.02); }
 .card:hover { transform: translateY(-3px); }
-.card-destaque { border-top: 5px solid var(--primaria); } /* Borda colorida no topo */
+.card-destaque { border-top: 5px solid var(--primaria); }
 .card-destaque:nth-child(2) { border-top-color: var(--alerta); }
 .card h3 { font-size: 13px; color: var(--texto-cinza); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; }
 
-/* Números dentro de círculos */
 .numero-circulo { display: inline-flex; align-items: center; justify-content: center; width: 65px; height: 65px; border-radius: 50%; font-size: 30px; font-weight: 800; margin-top: 5px; }
 .circulo-roxo { background-color: #F4EDFF; color: var(--primaria); }
 .circulo-laranja { background-color: #FFF6E5; color: var(--alerta); }
@@ -79,7 +78,10 @@ body { background-color: var(--bg-fundo); color: var(--texto-escuro); display: f
 .dia-feriado { color: var(--perigo); font-weight: 800; background-color: #FFF0F0; }
 .tem-nota::after { content: ''; position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; background-color: var(--secundaria); border-radius: 50%; }
 
-/* === FORMULÁRIO GERAL === */
+/* === PAINEL DE NOTAS E FORMULÁRIOS === */
+#texto-nota-dia { width: 100%; min-height: 100px; padding: 12px; border: 1px solid var(--borda); border-radius: 8px; resize: vertical; outline: none; margin-bottom: 10px; }
+#texto-nota-dia:focus { border-color: var(--secundaria); box-shadow: 0 0 0 3px rgba(0, 196, 204, 0.15); }
+
 .container, .table-container { background-color: var(--bg-card); padding: 40px; border-radius: var(--raio-card); box-shadow: var(--sombra-card); width: 100%; max-width: 900px; border: 1px solid rgba(0,0,0,0.02); }
 .table-container { max-width: 100%; }
 
@@ -95,32 +97,30 @@ input:focus, select:focus { outline: none; border-color: var(--primaria); backgr
 input[type="file"] { padding: 10px; cursor: pointer; }
 input[type="file"]::file-selector-button { background-color: white; border: 1px solid var(--borda); padding: 8px 16px; border-radius: 6px; color: var(--texto-escuro); font-weight: 700; cursor: pointer; margin-right: 15px; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
 
-/* === BOTÃO PRINCIPAL COM GLOW === */
+/* === BOTÕES E BADGES === */
 .btn-cadastrar, .btn-imprimir { grid-column: span 2; margin-top: 10px; padding: 18px; background: var(--gradient-principal); color: white; border: none; border-radius: var(--raio-btn); font-size: 16px; font-weight: 800; cursor: pointer; transition: all 0.2s; box-shadow: var(--sombra-glow); }
 .btn-cadastrar:hover, .btn-imprimir:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(139, 61, 255, 0.4); opacity: 0.95; }
 
-/* === BOTÕES DA TABELA (ESTILO SUAVE MODERNIZADO) === */
 .acoes-container { display: flex; gap: 10px; flex-wrap: wrap; }
 .btn-acao { padding: 8px 16px; border: none; border-radius: 8px; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s; }
 .btn-acao:hover { transform: translateY(-1px); }
 
-/* Fundo claro, texto escuro = Design Premium */
-.btn-perfil { background-color: #E6FAFB; color: #008A8F; } 
-.btn-perfil:hover { background-color: #CCF4F5; }
-.btn-editar { background-color: #FFF6E5; color: #B27B16; } 
-.btn-editar:hover { background-color: #FEE7BA; }
-.btn-excluir { background-color: #FFF0F0; color: #B23434; } 
-.btn-excluir:hover { background-color: #FCD6D6; }
-
+.btn-perfil { background-color: #E6FAFB; color: #008A8F; } .btn-perfil:hover { background-color: #CCF4F5; }
+.btn-editar { background-color: #FFF6E5; color: #B27B16; } .btn-editar:hover { background-color: #FEE7BA; }
+.btn-excluir { background-color: #FFF0F0; color: #B23434; } .btn-excluir:hover { background-color: #FCD6D6; }
 .btn-voltar { background-color: var(--bg-fundo); color: var(--texto-escuro); padding: 12px 20px; font-size: 14px; } .btn-voltar:hover { background-color: #E2E8F0; }
 
-/* === BADGES (Etiquetas de Status) === */
 .badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; }
 .badge-Ativo { background-color: #E6FAFB; color: #008A8F; }
 .badge-Férias { background-color: #FFF6E5; color: #B27B16; }
 .badge-Afastado { background-color: #FFF0F0; color: #B23434; }
 
-/* === TABELA COM CABEÇALHO LILÁS === */
+/* === NOVO: BUSCA E TABELA === */
+.header-tabela-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 15px; flex-wrap: wrap; }
+.busca-container { flex: 1; max-width: 400px; }
+#inputBusca { width: 100%; padding: 12px 20px; border-radius: 25px; border: 2px solid var(--borda); background-color: var(--bg-fundo); font-size: 14px; transition: 0.3s; }
+#inputBusca:focus { border-color: var(--primaria); background-color: white; outline: none; box-shadow: 0 4px 12px rgba(139, 61, 255, 0.1); }
+
 table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 10px; min-width: 800px; }
 th, td { padding: 18px 15px; text-align: left; border-bottom: 1px solid var(--borda); font-size: 14px; color: var(--texto-escuro); font-weight: 500;}
 th { background-color: #F4EDFF; color: var(--primaria); font-weight: 800; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; border-top: none; border-bottom: none; }
@@ -128,26 +128,22 @@ th:first-child { border-top-left-radius: 10px; border-bottom-left-radius: 10px;}
 th:last-child { border-top-right-radius: 10px; border-bottom-right-radius: 10px;}
 tr:hover td { background-color: var(--bg-fundo); }
 
-/* === PERFIL DETALHADO === */
+/* === NOVO: NOTIFICAÇÕES TOAST === */
+#toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+.toast { background: white; color: var(--texto-escuro); padding: 16px 25px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-left: 5px solid var(--primaria); font-weight: 600; display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease forwards; transition: opacity 0.5s; }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.toast.success { border-left-color: var(--secundaria); }
+.toast.error { border-left-color: var(--perigo); }
+
+/* === PERFIL, RESPONSIVO E IMPRESSÃO === */
 .perfil-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin: 30px 0; }
 .perfil-info { background: var(--bg-fundo); padding: 25px; border-radius: var(--raio-card); }
 .perfil-info strong { color: var(--texto-cinza); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 8px; font-weight: 800;}
 .perfil-info p { font-size: 18px; color: var(--texto-escuro); font-weight: 800; margin: 0; }
-
 .area-documentos-perfil { margin-top: 25px; padding: 30px; border: 2px dashed #CBD5E1; border-radius: var(--raio-card); background-color: var(--bg-card); }
 .area-documentos-perfil strong { font-size: 15px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 800; color: var(--primaria);}
 .doc-item { display: flex; justify-content: space-between; align-items: center; background: var(--bg-fundo); padding: 16px 20px; border-radius: 10px; margin-top: 15px; border: none; font-weight: 600;}
 
-/* === RESPONSIVIDADE & IMPRESSÃO === */
 @media (max-width: 1024px) { .dashboard-grid { flex-direction: column; } .sidebar { width: 220px; } }
 @media (max-width: 768px) { body { flex-direction: column; } .sidebar { width: 100%; height: auto; flex-direction: row; justify-content: space-between; align-items: center; padding: 0 20px; } .logo { border: none; padding: 20px 0; } .menu { flex-direction: row; padding: 0; overflow-x: auto; } .main-content { padding: 20px; } form { grid-template-columns: 1fr; } .full-width, .btn-cadastrar { grid-column: span 1; } .table-container { overflow-x: auto; padding: 20px; } }
-
-@media print {
-    body { background-color: white; }
-    .sidebar, .cabecalho-perfil, .acoes-container { display: none !important; }
-    .main-content { padding: 0 !important; width: 100% !important; overflow: visible !important; height: auto !important; }
-    .aba { display: none !important; }
-    #tela-perfil { display: block !important; }
-    .container { box-shadow: none; border: none; padding: 0; max-width: 100%; }
-    .area-documentos-perfil { border: 1px solid #ccc; }
-}
+@media print { body { background-color: white; } .sidebar, .cabecalho-perfil, .acoes-container, .busca-container, #toast-container { display: none !important; } .main-content { padding: 0 !important; width: 100% !important; overflow: visible !important; height: auto !important; } .aba { display: none !important; } #tela-perfil { display: block !important; } .container { box-shadow: none; border: none; padding: 0; max-width: 100%; } .area-documentos-perfil { border: 1px solid #ccc; } }
