@@ -1,3 +1,20 @@
+// --- LÓGICA DE NAVEGAÇÃO ENTRE AS TELAS ---
+function mudarAba(evento, idAbaDestino) {
+    // 1. Remove a classe 'ativa' de todos os botões do menu
+    const botoesMenu = document.querySelectorAll('.menu-item');
+    botoesMenu.forEach(botao => botao.classList.remove('ativo'));
+
+    // 2. Remove a classe 'ativa' de todas as telas (abas)
+    const telas = document.querySelectorAll('.aba');
+    telas.forEach(tela => tela.classList.remove('ativa'));
+
+    // 3. Adiciona a classe 'ativa' no botão clicado e na tela de destino
+    evento.target.classList.add('ativo');
+    document.getElementById(idAbaDestino).classList.add('ativa');
+}
+
+
+// --- LÓGICA DO CADASTRO E TABELA ---
 const form = document.getElementById('formFuncionario');
 const btnSubmit = document.getElementById('btnSubmit');
 
@@ -8,6 +25,9 @@ function atualizarTabela() {
     tbody.innerHTML = ''; 
 
     let funcionariosSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
+
+    // Atualiza o contador do Dashboard
+    document.getElementById('contador-funcionarios').innerText = funcionariosSalvos.length;
 
     funcionariosSalvos.forEach(function(func) {
         const tr = document.createElement('tr');
@@ -21,6 +41,7 @@ function atualizarTabela() {
             linkDoc = `<a href="${func.documento}" download="doc_${func.nome.replace(/\s+/g, '_')}" class="link-documento">Baixar</a>`;
         }
 
+        // NOVIDADE: Botão 'Ver Perfil' adicionado na frente
         tr.innerHTML = `
             <td><strong>${func.nome}</strong></td>
             <td>${func.cpf}</td>
@@ -31,6 +52,7 @@ function atualizarTabela() {
             <td>${linkDoc}</td>
             <td>
                 <div class="acoes-container">
+                    <button class="btn-acao btn-perfil" onclick="verPerfil(${func.id})">Ver Perfil</button>
                     <button class="btn-acao btn-editar" onclick="prepararEdicao(${func.id})">Editar</button>
                     <button class="btn-acao btn-excluir" onclick="excluirFuncionario(${func.id})">Excluir</button>
                 </div>
@@ -66,8 +88,15 @@ function prepararEdicao(id) {
         
         btnSubmit.textContent = "Salvar Alterações";
         btnSubmit.style.background = "linear-gradient(135deg, #f6ad55 0%, #ed8936 100%)";
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Simula o clique no menu para ir para a tela de Admissão
+        document.querySelectorAll('.menu-item')[1].click();
     }
+}
+
+// NOVIDADE: Função base para abrir o perfil (fará o trabalho na próxima etapa)
+function verPerfil(id) {
+    alert("Em breve! Esta função vai abrir o perfil completo e os documentos do funcionário.");
 }
 
 window.onload = atualizarTabela;
@@ -125,6 +154,9 @@ form.addEventListener('submit', function(event) {
         localStorage.setItem('listaFuncionarios', JSON.stringify(funcionariosSalvos));
         form.reset();
         atualizarTabela(); 
+        
+        // Simula o clique para voltar para a tela de Equipe após salvar
+        document.querySelectorAll('.menu-item')[2].click();
     }
 
     if (documentoInput.files.length > 0) {
