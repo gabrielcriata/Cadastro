@@ -30,7 +30,6 @@
             </div>
             
             <div class="dashboard-grid">
-                <!-- Coluna da Esquerda: Cards de Resumo -->
                 <div class="coluna-cards">
                     <div class="card">
                         <h3>Total de Funcionários</h3>
@@ -42,29 +41,39 @@
                     </div>
                     <div class="card">
                         <h3>🎂 Aniversariantes do Mês</h3>
-                        <ul id="lista-aniversariantes" class="lista-simples">
-                            <!-- JS preenche aqui -->
-                        </ul>
+                        <ul id="lista-aniversariantes" class="lista-simples"></ul>
                     </div>
                 </div>
 
-                <!-- Coluna da Direita: Agenda e Notas -->
                 <div class="coluna-ferramentas">
-                    <div class="card agenda-rh">
-                        <h3 style="margin-bottom: 15px;">📅 Prazos Importantes</h3>
-                        <div id="alerta-esocial" class="prazo-item">
-                            <strong>Dia 15:</strong> Enviar fechamento eSocial
+                    <!-- NOVO: CALENDÁRIO INTERATIVO -->
+                    <div class="card" style="padding: 20px;">
+                        <div class="calendario-header">
+                            <div>
+                                <h3 id="mes-ano-display" style="font-size: 18px; color: #1a202c; font-weight: 700;">MÊS ANO</h3>
+                            </div>
+                            <div>
+                                <button class="btn-cal" onclick="mudarMes(-1)">&#10094;</button>
+                                <button class="btn-cal" onclick="mudarMes(1)">&#10095;</button>
+                            </div>
                         </div>
-                        <div id="alerta-fgts" class="prazo-item">
-                            <strong>Dia 20:</strong> Vencimento DARF / FGTS
+                        
+                        <div class="dias-semana">
+                            <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
                         </div>
-                        <small style="color: #a0aec0; margin-top: 10px; display: block;">*Ficam vermelhos 5 dias antes do prazo.</small>
+                        <div id="dias-grid" class="dias-grid">
+                            <!-- JS preenche os dias aqui -->
+                        </div>
                     </div>
 
-                    <div class="card notepad-container">
-                        <h3 style="margin-bottom: 10px;">📝 Anotações Rápida (Atrasos, Recados...)</h3>
-                        <textarea id="blocoNotas" placeholder="Ex: João chegou atrasado dia 10/05. Comprar bolo para Maria sexta-feira..."></textarea>
-                        <small style="color: #48bb78; margin-top: 5px; display: block;">✔️ Salvo automaticamente no navegador.</small>
+                    <!-- NOVO: PAINEL DE ANOTAÇÕES DO DIA -->
+                    <div class="card" id="painel-notas-dia" style="display: none; border-left: 4px solid #3182ce;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h3 id="titulo-notas-dia" style="color: #2b6cb0;">Anotações do Dia</h3>
+                            <button onclick="fecharNotasDia()" style="background:none; border:none; cursor:pointer; font-size: 16px; color: #a0aec0;">✖</button>
+                        </div>
+                        <textarea id="texto-nota-dia" placeholder="Escreva recados, faltas ou atestados para esta data..." style="width: 100%; min-height: 100px; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; resize: vertical; outline: none; margin-bottom: 10px;"></textarea>
+                        <button class="btn-acao btn-editar" onclick="salvarNotaDia()" style="width: 100%; padding: 10px;">Salvar Anotação nesta Data</button>
                     </div>
                 </div>
             </div>
@@ -83,19 +92,14 @@
                         <label for="cpf">CPF</label>
                         <input type="text" id="cpf" required placeholder="000.000.000-00">
                     </div>
-                    
-                    <!-- NOVO CAMPO: Nascimento -->
                     <div class="form-group">
                         <label for="dataNascimento">Data de Nascimento</label>
                         <input type="date" id="dataNascimento" required>
                     </div>
-
                     <div class="form-group">
                         <label for="dataAdmissao">Data de Admissão</label>
                         <input type="date" id="dataAdmissao" required>
                     </div>
-                    
-                    <!-- NOVO CAMPO: Status -->
                     <div class="form-group">
                         <label for="statusFunc">Status Inicial</label>
                         <select id="statusFunc" required class="input-padrao">
@@ -104,7 +108,6 @@
                             <option value="Afastado">🔴 Afastado</option>
                         </select>
                     </div>
-
                     <div class="form-group">
                         <label for="departamento">Departamento</label>
                         <input type="text" id="departamento" required placeholder="Ex: Tecnologia">
@@ -117,7 +120,6 @@
                         <label for="salario">Salário Bruto (R$)</label>
                         <input type="number" id="salario" step="0.01" required placeholder="Ex: 3500.00">
                     </div>
-                    
                     <div class="form-group">
                         <label for="docRG">Cópia do RG/CPF</label>
                         <input type="file" id="docRG" accept=".pdf, image/jpeg, image/png">
@@ -126,8 +128,7 @@
                         <label for="docCTPS">Carteira de Trabalho (CTPS)</label>
                         <input type="file" id="docCTPS" accept=".pdf, image/jpeg, image/png">
                     </div>
-
-                    <button type="submit" class="btn-cadastrar" id="btnSubmit">Salvar Dados do Funcionário</button>
+                    <button type="submit" class="btn-cadastrar" id="btnSubmit">Salvar Dados</button>
                 </form>
             </div>
         </section>
@@ -139,7 +140,6 @@
                     <h2 style="margin-bottom: 0;">Funcionários Cadastrados</h2>
                     <button class="btn-acao btn-perfil" onclick="exportarListaCSV()" style="padding: 10px 15px;">📥 Exportar Tabela</button>
                 </div>
-                
                 <table id="tabelaFuncionarios">
                     <thead>
                         <tr>
@@ -150,9 +150,7 @@
                             <th>Ações</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <!-- O JavaScript vai colocar as linhas aqui -->
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         </section>
@@ -163,14 +161,10 @@
                 <button class="btn-acao btn-voltar" onclick="mudarAba(null, 'tela-equipe')">← Voltar para Equipe</button>
                 <button class="btn-acao btn-imprimir" onclick="window.print()" style="background-color: #3182ce; padding: 10px 15px;">🖨️ Imprimir Ficha</button>
             </div>
-            
-            <div class="container" id="conteudo-perfil" style="margin-top: 20px;">
-                <!-- Preenchido pelo JS -->
-            </div>
+            <div class="container" id="conteudo-perfil" style="margin-top: 20px;"></div>
         </section>
 
     </main>
-
     <script src="script.js"></script>
 </body>
 </html>
