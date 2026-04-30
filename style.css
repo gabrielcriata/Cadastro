@@ -109,6 +109,7 @@ input[type="file"]::file-selector-button { background-color: white; border: 1px 
 .btn-editar { background-color: #FFF6E5; color: #B27B16; } .btn-editar:hover { background-color: #FEE7BA; }
 .btn-excluir { background-color: #FFF0F0; color: #B23434; } .btn-excluir:hover { background-color: #FCD6D6; }
 .btn-voltar { background-color: var(--bg-fundo); color: var(--texto-escuro); padding: 12px 20px; font-size: 14px; } .btn-voltar:hover { background-color: #E2E8F0; }
+.btn-remover-dep { height: 48px; margin-bottom: 2px; }
 
 .badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; }
 .badge-Ativo { background-color: #E6FAFB; color: #008A8F; }
@@ -136,7 +137,11 @@ tr:hover td { background-color: var(--bg-fundo); }
 .toast.success { border-left-color: var(--secundaria); }
 .toast.error { border-left-color: var(--perigo); }
 
-/* === PERFIL, RESPONSIVO E IMPRESSÃO === */
+/* === PERFIL E FORMULÁRIOS === */
+.form-section-title { grid-column: span 2; margin-top: 15px; margin-bottom: 5px; color: var(--primaria); font-size: 18px; border-bottom: 2px solid var(--bg-fundo); padding-bottom: 10px; }
+.box-demissao { display: none; background: #FFF0F0; padding: 15px; border-radius: 8px; border: 1px solid #FCD6D6; }
+.dependente-item { display: flex; gap: 15px; align-items: flex-end; margin-bottom: 15px; background: var(--bg-fundo); padding: 15px; border-radius: 8px; border: 1px solid var(--borda); }
+
 .perfil-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
 .perfil-info { background: var(--bg-fundo); padding: 20px; border-radius: var(--raio-card); }
 .perfil-info strong { color: var(--texto-cinza); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 5px; font-weight: 800;}
@@ -145,11 +150,42 @@ tr:hover td { background-color: var(--bg-fundo); }
 .area-documentos-perfil strong { font-size: 15px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 800; color: var(--primaria);}
 .doc-item { display: flex; justify-content: space-between; align-items: center; background: var(--bg-fundo); padding: 16px 20px; border-radius: 10px; margin-top: 15px; border: none; font-weight: 600;}
 
-/* === ESTILOS NOVOS === */
-.form-section-title { grid-column: span 2; margin-top: 15px; margin-bottom: 5px; color: var(--primaria); font-size: 18px; border-bottom: 2px solid var(--bg-fundo); padding-bottom: 10px; }
-.box-demissao { display: none; background: #FFF0F0; padding: 15px; border-radius: 8px; border: 1px solid #FCD6D6; }
-.dependente-item { display: flex; gap: 15px; align-items: flex-end; margin-bottom: 15px; background: var(--bg-fundo); padding: 15px; border-radius: 8px; border: 1px solid var(--borda); }
+/* Elementos exclusivos para impressão ficam escondidos no site normal */
+.print-header-oficial, .print-signatures-oficial, .print-only { display: none; }
 
 @media (max-width: 1024px) { .dashboard-grid { flex-direction: column; } .sidebar { width: 220px; } }
-@media (max-width: 768px) { body { flex-direction: column; } .sidebar { width: 100%; height: auto; flex-direction: row; justify-content: space-between; align-items: center; padding: 0 20px; } .logo { border: none; padding: 20px 0; } .menu { flex-direction: row; padding: 0; overflow-x: auto; } .main-content { padding: 20px; } form { grid-template-columns: 1fr; } .full-width, .btn-cadastrar, .form-section-title { grid-column: span 1; } .table-container { overflow-x: auto; padding: 20px; } .dependente-item { flex-direction: column; align-items: stretch;} }
-@media print { body { background-color: white; } .sidebar, .cabecalho-perfil, .acoes-container, .busca-container, #toast-container, button { display: none !important; } .main-content { padding: 0 !important; width: 100% !important; overflow: visible !important; height: auto !important; } .aba { display: none !important; } #tela-perfil { display: block !important; } .container { box-shadow: none; border: none; padding: 0; max-width: 100%; } .area-documentos-perfil { border: 1px solid #ccc; } }
+@media (max-width: 768px) { body { flex-direction: column; } .sidebar { width: 100%; height: auto; flex-direction: row; justify-content: space-between; align-items: center; padding: 0 20px; } .logo { border: none; padding: 20px 0; } .menu { flex-direction: row; padding: 0; overflow-x: auto; } .main-content { padding: 20px; } form { grid-template-columns: 1fr; } .full-width, .btn-cadastrar, .form-section-title { grid-column: span 1; } .table-container { overflow-x: auto; padding: 20px; } .dependente-item { flex-direction: column; align-items: stretch;} .btn-remover-dep { width: 100%; } .box-endereco-flex { flex-direction: column; } }
+
+/* =========================================================================
+   ESTILOS ESPECÍFICOS DE IMPRESSÃO (FICHA DE REGISTRO FORMAL) 
+========================================================================== */
+@media print {
+    @page { margin: 1cm; }
+    body { background-color: white !important; color: black !important; font-size: 12pt !important; }
+    
+    /* Esconder tudo o que não é o perfil do funcionário */
+    .sidebar, .cabecalho-perfil, .acoes-container, .busca-container, #toast-container, button, .hide-on-print { display: none !important; }
+    
+    .main-content { padding: 0 !important; width: 100% !important; overflow: visible !important; height: auto !important; }
+    .aba { display: none !important; } 
+    #tela-perfil { display: block !important; }
+    .container { box-shadow: none !important; border: none !important; padding: 0 !important; max-width: 100% !important; }
+    
+    /* Mostra cabeçalho oficial e assinaturas */
+    .print-header-oficial { display: block !important; }
+    .print-signatures-oficial { display: flex !important; justify-content: space-around; margin-top: 50px; page-break-inside: avoid; }
+    .linha-assinatura { text-align: center; width: 40%; }
+    .linha-assinatura hr { border: none; border-top: 1px solid black; margin-bottom: 5px; }
+    .linha-assinatura p { font-size: 12px; font-weight: bold; margin: 0; }
+    
+    /* Remove o estilo web arredondado e aplica o modelo de Tabela/Ficha de RH */
+    .web-cabecalho-perfil { display: none !important; }
+    .print-only { display: block !important; font-size: 16pt; margin-bottom: 10px !important;}
+    .print-section-title { color: black !important; border-bottom: 1px solid black; margin-bottom: 5px !important; margin-top: 15px !important; font-size: 14pt !important; padding-bottom: 2px;}
+    
+    .print-grid { display: grid; gap: 0 !important; border-top: 1px solid black; border-left: 1px solid black; margin-bottom: 10px !important;}
+    .print-box { border-bottom: 1px solid black !important; border-right: 1px solid black !important; border-radius: 0 !important; padding: 5px 8px !important; background: transparent !important; page-break-inside: avoid;}
+    .print-box strong { color: black !important; font-size: 9pt !important; display: block; margin-bottom: 2px;}
+    .print-box p, .print-box li { font-size: 11pt !important; color: black !important; font-weight: normal !important; margin:0;}
+    .print-box ul { padding-left: 0; margin: 0; list-style-type: none;}
+}
