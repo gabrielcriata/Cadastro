@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Funcionários</title>
+    <style>
+        /* Estilos básicos (CSS) */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        input[type="file"] {
+            padding: 7px;
+            background-color: #f9f9f9;
+        }
+
+        .btn-cadastrar {
+            width: 100%;
+            padding: 12px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-cadastrar:hover {
+            background-color: #219150;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Cadastro de Funcionário</h1>
+        
+        <form id="formFuncionario">
+            <div class="form-group">
+                <label for="nome">Nome Completo:</label>
+                <input type="text" id="nome" required placeholder="Ex: João da Silva">
+            </div>
+
+            <div class="form-group">
+                <label for="cpf">CPF:</label>
+                <input type="text" id="cpf" required placeholder="000.000.000-00">
+            </div>
+
+            <div class="form-group">
+                <label for="cargo">Cargo:</label>
+                <input type="text" id="cargo" required placeholder="Ex: Desenvolvedor">
+            </div>
+
+            <div class="form-group">
+                <label for="departamento">Departamento:</label>
+                <input type="text" id="departamento" required placeholder="Ex: TI">
+            </div>
+
+            <div class="form-group">
+                <label for="salario">Salário (R$):</label>
+                <input type="number" id="salario" step="0.01" required placeholder="Ex: 3500.00">
+            </div>
+
+            <div class="form-group">
+                <label for="dataAdmissao">Data de Admissão:</label>
+                <input type="date" id="dataAdmissao" required>
+            </div>
+
+            <!-- Novo campo para os documentos -->
+            <div class="form-group">
+                <label for="documento">Anexar Documento (PDF, JPG, PNG):</label>
+                <input type="file" id="documento" accept=".pdf, image/jpeg, image/png">
+                <small style="color: #666; font-size: 12px;">Selecione o documento de identidade ou contrato.</small>
+            </div>
+
+            <button type="submit" class="btn-cadastrar">Cadastrar</button>
+        </form>
+    </div>
+
+</body>
+</html>
