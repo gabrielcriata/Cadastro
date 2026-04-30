@@ -24,6 +24,7 @@
 
     <main class="main-content">
 
+        <!-- DASHBOARD -->
         <section id="tela-dashboard" class="aba ativa">
             <div class="header-tela">
                 <h1>Painel de Controle</h1>
@@ -35,6 +36,14 @@
                     <div class="card card-destaque">
                         <h3>Total de Funcionários Ativos</h3>
                         <div class="numero-circulo circulo-roxo" id="contador-funcionarios">0</div>
+                    </div>
+                    
+                    <!-- NOVO: Painel de Alertas de Férias -->
+                    <div class="card" style="border-top: 5px solid var(--perigo);">
+                        <h3>⚠️ Alertas Importantes</h3>
+                        <ul id="lista-alertas" class="lista-simples">
+                            <li style="color: var(--texto-cinza);">Nenhum alerta no momento.</li>
+                        </ul>
                     </div>
                     
                     <div class="card">
@@ -82,174 +91,186 @@
             </div>
         </section>
 
+        <!-- FORMULÁRIO DE ADMISSÃO / EDIÇÃO -->
         <section id="tela-admissao" class="aba">
             <div class="container" style="max-width: 1000px;">
-                <h1>Ficha de Registro</h1>
+                <h1>Ficha do Colaborador</h1>
+                
+                <!-- NAVEGAÇÃO INTERNA DO FORMULÁRIO -->
+                <div class="form-tabs" style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--borda); padding-bottom: 10px; overflow-x: auto;">
+                    <button type="button" class="btn-form-tab ativo" onclick="mudarAbaForm('tab-dados')">Dados Gerais</button>
+                    <button type="button" class="btn-form-tab" onclick="mudarAbaForm('tab-ferias')">Controle de Férias e 13º</button>
+                    <button type="button" class="btn-form-tab" onclick="mudarAbaForm('tab-notas')">Notas Internas</button>
+                </div>
+
                 <form id="formFuncionario">
                     
-                    <h3 class="form-section-title">👤 Dados Pessoais</h3>
-                    
-                    <div class="form-group full-width">
-                        <label for="nome">Nome Completo</label>
-                        <input type="text" id="nome" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="dataNascimento">Data de Nascimento</label>
-                        <input type="date" id="dataNascimento" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="cpf">CPF</label>
-                        <input type="text" id="cpf" required maxlength="14">
-                    </div>
-                    <div class="form-group">
-                        <label for="nomeMae">Nome da Mãe</label>
-                        <input type="text" id="nomeMae">
-                    </div>
-                    <div class="form-group">
-                        <label for="nomePai">Nome do Pai</label>
-                        <input type="text" id="nomePai">
-                    </div>
-
-                    <h3 class="form-section-title">📍 Endereço</h3>
-                    <div class="form-group">
-                        <label for="cep">CEP</label>
-                        <input type="text" id="cep" maxlength="9" onblur="buscarCEP(this.value)" placeholder="00000-000">
-                    </div>
-                    <div class="form-group">
-                        <label for="logradouro">Rua / Logradouro</label>
-                        <input type="text" id="logradouro">
-                    </div>
-                    <div style="display: flex; gap: 10px;" class="form-group full-width box-endereco-flex">
-                        <div style="flex: 1;">
-                            <label for="numeroEnd">Número</label>
-                            <input type="text" id="numeroEnd">
+                    <!-- ABA: DADOS GERAIS -->
+                    <div id="tab-dados" class="form-tab-content" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <h3 class="form-section-title">👤 Dados Pessoais</h3>
+                        <div class="form-group full-width">
+                            <label for="nome">Nome Completo</label>
+                            <input type="text" id="nome" required>
                         </div>
-                        <div style="flex: 2;">
-                            <label for="bairro">Bairro</label>
-                            <input type="text" id="bairro">
+                        <div class="form-group">
+                            <label for="dataNascimento">Data de Nascimento</label>
+                            <input type="date" id="dataNascimento" required>
                         </div>
-                        <div style="flex: 2;">
-                            <label for="cidade">Cidade</label>
-                            <input type="text" id="cidade">
+                        <div class="form-group">
+                            <label for="cpf">CPF</label>
+                            <input type="text" id="cpf" required maxlength="14">
                         </div>
-                        <div style="flex: 1;">
-                            <label for="uf">UF</label>
-                            <input type="text" id="uf" maxlength="2">
+                        <div class="form-group">
+                            <label for="nomeMae">Nome da Mãe</label>
+                            <input type="text" id="nomeMae">
+                        </div>
+                        <div class="form-group">
+                            <label for="nomePai">Nome do Pai</label>
+                            <input type="text" id="nomePai">
+                        </div>
+
+                        <h3 class="form-section-title">📍 Endereço</h3>
+                        <div class="form-group">
+                            <label for="cep">CEP</label>
+                            <input type="text" id="cep" maxlength="9" onblur="buscarCEP(this.value)" placeholder="00000-000">
+                        </div>
+                        <div class="form-group">
+                            <label for="logradouro">Rua / Logradouro</label>
+                            <input type="text" id="logradouro">
+                        </div>
+                        <div style="display: flex; gap: 10px;" class="form-group full-width box-endereco-flex">
+                            <div style="flex: 1;"><label for="numeroEnd">Número</label><input type="text" id="numeroEnd"></div>
+                            <div style="flex: 2;"><label for="bairro">Bairro</label><input type="text" id="bairro"></div>
+                            <div style="flex: 2;"><label for="cidade">Cidade</label><input type="text" id="cidade"></div>
+                            <div style="flex: 1;"><label for="uf">UF</label><input type="text" id="uf" maxlength="2"></div>
+                        </div>
+
+                        <h3 class="form-section-title">📄 Documentos</h3>
+                        <div class="form-group"><label for="rg">RG</label><input type="text" id="rg"></div>
+                        <div class="form-group"><label for="pis">PIS</label><input type="text" id="pis"></div>
+                        <div class="form-group"><label for="reservista">Certif. Reservista</label><input type="text" id="reservista"></div>
+                        <div class="form-group"><label for="ctpsNumero">CTPS (Nº / Série-UF)</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="ctpsNumero" style="flex: 2;">
+                                <input type="text" id="ctpsSerie" style="flex: 1;" placeholder="Série">
+                            </div>
+                        </div>
+                        <div class="form-group"><label for="eleitorNumero">Tít. Eleitor (Nº - Zona/Seção)</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="eleitorNumero" style="flex: 2;">
+                                <input type="text" id="eleitorZona" style="flex: 1;" placeholder="Zona">
+                                <input type="text" id="eleitorSecao" style="flex: 1;" placeholder="Seção">
+                            </div>
+                        </div>
+
+                        <h3 class="form-section-title">💼 Contrato</h3>
+                        <div class="form-group">
+                            <label for="dataAdmissao">Data de Admissão</label>
+                            <input type="date" id="dataAdmissao" required onchange="calcularVencimentoFerias()">
+                        </div>
+                        <div class="form-group">
+                            <label for="statusFunc">Status</label>
+                            <select id="statusFunc" required onchange="verificarStatus()">
+                                <option value="Ativo">Ativo</option>
+                                <option value="Férias">De Férias</option>
+                                <option value="Afastado">Afastado</option>
+                                <option value="Demitido">Demitido</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width box-demissao" id="boxDemissao">
+                            <label for="dataDemissao" style="color: #B23434;">Data de Demissão</label>
+                            <input type="date" id="dataDemissao">
+                        </div>
+                        <div class="form-group"><label for="departamento">Departamento</label><input type="text" id="departamento" required></div>
+                        <div class="form-group"><label for="cargo">Cargo</label><input type="text" id="cargo" required></div>
+                        <div class="form-group full-width"><label for="salario">Salário Bruto</label><input type="text" id="salario" required></div>
+
+                        <h3 class="form-section-title">🏦 Dados Bancários</h3>
+                        <div class="form-group"><label for="banco">Banco / Agência</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="banco" placeholder="Ex: Itaú" style="flex: 2;">
+                                <input type="text" id="agencia" placeholder="Agência" style="flex: 1;">
+                            </div>
+                        </div>
+                        <div class="form-group"><label for="conta">Conta / PIX</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="conta" placeholder="Conta" style="flex: 1;">
+                                <input type="text" id="chavePix" placeholder="Chave PIX" style="flex: 1;">
+                            </div>
+                        </div>
+
+                        <h3 class="form-section-title">👨‍👩‍👧‍👦 Dependentes</h3>
+                        <div class="form-group full-width" id="lista-dependentes-container"></div>
+                        <button type="button" class="btn-acao btn-perfil" onclick="adicionarDependente()" style="grid-column: span 2; padding: 12px;">+ Adicionar Dependente</button>
+
+                        <h3 class="form-section-title">📎 Anexos (Opcional)</h3>
+                        <div class="form-group"><label for="docRG">Cópia RG/CPF (Img/PDF)</label><input type="file" id="docRG"></div>
+                        <div class="form-group"><label for="docCTPS">Cópia CTPS (Img/PDF)</label><input type="file" id="docCTPS"></div>
+                    </div>
+
+                    <!-- ABA: FÉRIAS E 13º -->
+                    <div id="tab-ferias" class="form-tab-content" style="display: none; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        
+                        <div class="card card-destaque" style="grid-column: span 2; border-top-color: var(--secundaria);">
+                            <h3 style="color: var(--secundaria); font-size: 16px; margin-bottom: 5px;">Período Aquisitivo de Férias</h3>
+                            <p style="font-size: 13px; color: #718096; margin-bottom: 15px;">Calculado com base na Data de Admissão.</p>
+                            
+                            <div style="display: flex; gap: 20px; align-items: center;">
+                                <div style="flex: 1;">
+                                    <label style="font-size: 11px;">Início do Período</label>
+                                    <input type="text" id="feriasInicio" disabled style="background: #E2E8F0; font-weight: bold;">
+                                </div>
+                                <div style="flex: 1;">
+                                    <label style="font-size: 11px;">Fim do Período (Vencimento)</label>
+                                    <input type="text" id="feriasFim" disabled style="background: #E2E8F0; font-weight: bold; color: var(--perigo);">
+                                </div>
+                                <div style="flex: 1;">
+                                    <label style="font-size: 11px;">Dias Acumulados (Em haver)</label>
+                                    <input type="number" id="feriasDiasHaver" value="30" style="font-weight: bold;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 class="form-section-title">🏖️ Agendamento de Férias (Gozo)</h3>
+                        <div class="form-group">
+                            <label for="feriasDataSaida">Data de Saída</label>
+                            <input type="date" id="feriasDataSaida">
+                        </div>
+                        <div class="form-group">
+                            <label for="feriasDataRetorno">Data de Retorno</label>
+                            <input type="date" id="feriasDataRetorno">
+                        </div>
+
+                        <h3 class="form-section-title">💰 13º Salário</h3>
+                        <div class="form-group">
+                            <label for="decimoStatus">Antecipação (1ª Parcela)</label>
+                            <select id="decimoStatus">
+                                <option value="Não Solicitado">Não Solicitado / Não Pago</option>
+                                <option value="Pago nas Férias">Pago junto com Férias</option>
+                                <option value="Adiantado (Novembro)">Adiantamento Pago</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="decimoValorAdiantado">Valor Adiantado (R$)</label>
+                            <input type="text" id="decimoValorAdiantado" placeholder="R$ 0,00" oninput="formatarMoeda(event)">
                         </div>
                     </div>
 
-                    <h3 class="form-section-title">📄 Documentos</h3>
-
-                    <div class="form-group">
-                        <label for="rg">RG</label>
-                        <input type="text" id="rg">
-                    </div>
-                    <div class="form-group">
-                        <label for="pis">PIS</label>
-                        <input type="text" id="pis">
-                    </div>
-                    <div class="form-group">
-                        <label for="reservista">Certificado de Reservista</label>
-                        <input type="text" id="reservista">
-                    </div>
-                    <div class="form-group">
-                        <label for="ctpsNumero">CTPS (Número)</label>
-                        <input type="text" id="ctpsNumero">
-                    </div>
-                    <div class="form-group">
-                        <label for="ctpsSerie">CTPS (Série / UF)</label>
-                        <input type="text" id="ctpsSerie">
-                    </div>
-                    <div class="form-group">
-                        <label for="eleitorNumero">Título de Eleitor</label>
-                        <input type="text" id="eleitorNumero">
-                    </div>
-                    <div style="display: flex; gap: 10px;" class="form-group">
-                        <div style="flex: 1;">
-                            <label for="eleitorZona">Zona</label>
-                            <input type="text" id="eleitorZona">
-                        </div>
-                        <div style="flex: 1;">
-                            <label for="eleitorSecao">Seção</label>
-                            <input type="text" id="eleitorSecao">
+                    <!-- ABA: NOTAS INTERNAS -->
+                    <div id="tab-notas" class="form-tab-content" style="display: none; grid-template-columns: 1fr; gap: 20px;">
+                        <h3 class="form-section-title">📝 Anotações do RH</h3>
+                        <p style="font-size: 13px; color: #718096; margin-bottom: 5px;">Use este espaço para registrar advertências, atestados, avaliações ou observações internas sobre o colaborador. (Não sai na impressão da ficha).</p>
+                        <div class="form-group full-width">
+                            <textarea id="notasInternas" rows="12" style="width: 100%; padding: 15px; border: 2px solid var(--borda); border-radius: 8px; font-size: 14px; outline: none; resize: vertical;" placeholder="Digite suas observações aqui..."></textarea>
                         </div>
                     </div>
 
-                    <h3 class="form-section-title">💼 Contrato e Status</h3>
-
-                    <div class="form-group">
-                        <label for="dataAdmissao">Data de Admissão</label>
-                        <input type="date" id="dataAdmissao" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="statusFunc">Status</label>
-                        <select id="statusFunc" required onchange="verificarStatus()">
-                            <option value="Ativo">Ativo</option>
-                            <option value="Férias">De Férias</option>
-                            <option value="Afastado">Afastado</option>
-                            <option value="Demitido">Demitido</option>
-                        </select>
-                    </div>
-                    <div class="form-group full-width box-demissao" id="boxDemissao">
-                        <label for="dataDemissao" style="color: #B23434;">Data de Demissão</label>
-                        <input type="date" id="dataDemissao">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="departamento">Departamento</label>
-                        <input type="text" id="departamento" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="cargo">Cargo</label>
-                        <input type="text" id="cargo" required>
-                    </div>
-                    <div class="form-group full-width">
-                        <label for="salario">Salário Bruto</label>
-                        <input type="text" id="salario" required>
-                    </div>
-
-                    <h3 class="form-section-title">🏦 Dados Bancários</h3>
-
-                    <div class="form-group">
-                        <label for="banco">Banco</label>
-                        <input type="text" id="banco" placeholder="Ex: Itaú, Nubank">
-                    </div>
-                    <div class="form-group">
-                        <label for="agencia">Agência</label>
-                        <input type="text" id="agencia">
-                    </div>
-                    <div class="form-group">
-                        <label for="conta">Conta Corrente/Poupança</label>
-                        <input type="text" id="conta">
-                    </div>
-                    <div class="form-group">
-                        <label for="chavePix">Chave PIX</label>
-                        <input type="text" id="chavePix">
-                    </div>
-
-                    <h3 class="form-section-title">👨‍👩‍👧‍👦 Dependentes</h3>
-                    
-                    <div class="form-group full-width" id="lista-dependentes-container">
-                        <!-- Dependentes dinâmicos -->
-                    </div>
-                    <button type="button" class="btn-acao btn-perfil" onclick="adicionarDependente()" style="grid-column: span 2; padding: 12px;">+ Adicionar Dependente</button>
-
-                    <h3 class="form-section-title">📎 Anexos (Opcional)</h3>
-
-                    <div class="form-group">
-                        <label for="docRG">Cópia RG/CPF (Imagem ou PDF)</label>
-                        <input type="file" id="docRG">
-                    </div>
-                    <div class="form-group">
-                        <label for="docCTPS">Cópia Carteira de Trabalho</label>
-                        <input type="file" id="docCTPS">
-                    </div>
-
-                    <button type="submit" class="btn-cadastrar" id="btnSubmit">✨ Salvar Ficha de Registro</button>
+                    <button type="submit" class="btn-cadastrar" id="btnSubmit" style="grid-column: span 2; margin-top: 30px;">✨ Salvar Ficha Completa</button>
                 </form>
             </div>
         </section>
 
+        <!-- EQUIPE -->
         <section id="tela-equipe" class="aba">
             <div class="table-container">
                 <div class="header-tabela-flex">
@@ -263,8 +284,8 @@
                     <thead>
                         <tr>
                             <th>Status</th>
-                            <th>Nome</th>
-                            <th>Cargo</th>
+                            <th>Nome / Cargo</th>
+                            <th>Férias</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -273,6 +294,7 @@
             </div>
         </section>
 
+        <!-- PERFIL -->
         <section id="tela-perfil" class="aba">
             <div class="header-tela cabecalho-perfil">
                 <button class="btn-acao btn-voltar" onclick="mudarAba(null, 'tela-equipe')">← Voltar</button>
