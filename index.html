@@ -4,46 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Funcionários</title>
+    <!-- Importando uma fonte moderna do Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Estilos básicos (CSS) */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         body {
-            background-color: #f4f7f6;
-            color: #333;
+            /* Fundo com um gradiente moderno e suave */
+            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+            color: #2d3748;
             display: flex;
             justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             padding: 20px;
         }
 
         .container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
             width: 100%;
-            max-width: 600px;
+            max-width: 700px;
         }
 
         h1 {
             text-align: center;
-            margin-bottom: 20px;
-            color: #2c3e50;
+            margin-bottom: 30px;
+            color: #1a202c;
+            font-weight: 700;
+            font-size: 26px;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Fazendo campos específicos ocuparem as duas colunas */
+        .full-width {
+            grid-column: span 2;
         }
 
         label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #4a5568;
         }
 
         input[type="text"],
@@ -51,80 +70,129 @@
         input[type="date"],
         input[type="file"] {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
+            padding: 12px 15px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            color: #2d3748;
+            background-color: #f7fafc;
+            transition: all 0.3s ease;
+        }
+
+        /* Efeito ao clicar no campo */
+        input:focus {
+            outline: none;
+            border-color: #4299e1;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
         }
 
         input[type="file"] {
-            padding: 7px;
-            background-color: #f9f9f9;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        /* Estilizando o botão padrão de arquivo do navegador */
+        input[type="file"]::file-selector-button {
+            background-color: #edf2f7;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            color: #4a5568;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 15px;
+            transition: background-color 0.2s;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background-color: #e2e8f0;
+        }
+
+        small {
+            margin-top: 6px;
+            color: #718096;
+            font-size: 12px;
         }
 
         .btn-cadastrar {
-            width: 100%;
-            padding: 12px;
-            background-color: #27ae60;
+            grid-column: span 2;
+            margin-top: 10px;
+            padding: 14px;
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.3s;
-            margin-top: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(66, 153, 225, 0.2);
         }
 
         .btn-cadastrar:hover {
-            background-color: #219150;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(66, 153, 225, 0.3);
+        }
+
+        .btn-cadastrar:active {
+            transform: translateY(0);
+        }
+
+        /* Responsividade: Volta para 1 coluna em telas de celular */
+        @media (max-width: 600px) {
+            form {
+                grid-template-columns: 1fr;
+            }
+            .full-width, .btn-cadastrar {
+                grid-column: span 1;
+            }
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Cadastro de Funcionário</h1>
+        <h1>Novo Funcionário</h1>
         
         <form id="formFuncionario">
-            <div class="form-group">
-                <label for="nome">Nome Completo:</label>
+            <div class="form-group full-width">
+                <label for="nome">Nome Completo</label>
                 <input type="text" id="nome" required placeholder="Ex: João da Silva">
             </div>
 
             <div class="form-group">
-                <label for="cpf">CPF:</label>
+                <label for="cpf">CPF</label>
                 <input type="text" id="cpf" required placeholder="000.000.000-00">
             </div>
 
             <div class="form-group">
-                <label for="cargo">Cargo:</label>
-                <input type="text" id="cargo" required placeholder="Ex: Desenvolvedor">
-            </div>
-
-            <div class="form-group">
-                <label for="departamento">Departamento:</label>
-                <input type="text" id="departamento" required placeholder="Ex: TI">
-            </div>
-
-            <div class="form-group">
-                <label for="salario">Salário (R$):</label>
-                <input type="number" id="salario" step="0.01" required placeholder="Ex: 3500.00">
-            </div>
-
-            <div class="form-group">
-                <label for="dataAdmissao">Data de Admissão:</label>
+                <label for="dataAdmissao">Data de Admissão</label>
                 <input type="date" id="dataAdmissao" required>
             </div>
 
-            <!-- Novo campo para os documentos -->
             <div class="form-group">
-                <label for="documento">Anexar Documento (PDF, JPG, PNG):</label>
-                <input type="file" id="documento" accept=".pdf, image/jpeg, image/png">
-                <small style="color: #666; font-size: 12px;">Selecione o documento de identidade ou contrato.</small>
+                <label for="departamento">Departamento</label>
+                <input type="text" id="departamento" required placeholder="Ex: Tecnologia">
             </div>
 
-            <button type="submit" class="btn-cadastrar">Cadastrar</button>
+            <div class="form-group">
+                <label for="cargo">Cargo</label>
+                <input type="text" id="cargo" required placeholder="Ex: Analista de Sistemas">
+            </div>
+
+            <div class="form-group full-width">
+                <label for="salario">Salário Bruto (R$)</label>
+                <input type="number" id="salario" step="0.01" required placeholder="Ex: 3500.00">
+            </div>
+
+            <div class="form-group full-width">
+                <label for="documento">Anexar Documento</label>
+                <input type="file" id="documento" accept=".pdf, image/jpeg, image/png">
+                <small>Formatos aceitos: PDF, JPG ou PNG.</small>
+            </div>
+
+            <button type="submit" class="btn-cadastrar">Cadastrar Funcionário</button>
         </form>
     </div>
 
