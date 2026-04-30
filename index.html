@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Funcionários</title>
-    <!-- Importando uma fonte moderna do Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -15,16 +14,16 @@
         }
 
         body {
-            /* Fundo com um gradiente moderno e suave */
             background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
             color: #2d3748;
             display: flex;
-            justify-content: center;
+            flex-direction: column; /* Alterado para empilhar os elementos */
             align-items: center;
             min-height: 100vh;
             padding: 20px;
         }
 
+        /* Estilos do Formulário */
         .container {
             background-color: #ffffff;
             padding: 40px;
@@ -32,15 +31,17 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
             width: 100%;
             max-width: 700px;
+            margin-bottom: 30px; /* Espaço entre o formulário e a tabela */
         }
 
-        h1 {
+        h1, h2 {
             text-align: center;
-            margin-bottom: 30px;
             color: #1a202c;
             font-weight: 700;
-            font-size: 26px;
         }
+
+        h1 { margin-bottom: 30px; font-size: 26px; }
+        h2 { margin-bottom: 20px; font-size: 22px; }
 
         form {
             display: grid;
@@ -48,15 +49,8 @@
             gap: 20px;
         }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Fazendo campos específicos ocuparem as duas colunas */
-        .full-width {
-            grid-column: span 2;
-        }
+        .form-group { display: flex; flex-direction: column; }
+        .full-width { grid-column: span 2; }
 
         label {
             margin-bottom: 8px;
@@ -65,10 +59,7 @@
             color: #4a5568;
         }
 
-        input[type="text"],
-        input[type="number"],
-        input[type="date"],
-        input[type="file"] {
+        input[type="text"], input[type="number"], input[type="date"], input[type="file"] {
             width: 100%;
             padding: 12px 15px;
             border: 1.5px solid #e2e8f0;
@@ -79,7 +70,6 @@
             transition: all 0.3s ease;
         }
 
-        /* Efeito ao clicar no campo */
         input:focus {
             outline: none;
             border-color: #4299e1;
@@ -87,12 +77,7 @@
             box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
         }
 
-        input[type="file"] {
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        /* Estilizando o botão padrão de arquivo do navegador */
+        input[type="file"] { padding: 10px; cursor: pointer; }
         input[type="file"]::file-selector-button {
             background-color: #edf2f7;
             border: none;
@@ -104,16 +89,8 @@
             margin-right: 15px;
             transition: background-color 0.2s;
         }
-
-        input[type="file"]::file-selector-button:hover {
-            background-color: #e2e8f0;
-        }
-
-        small {
-            margin-top: 6px;
-            color: #718096;
-            font-size: 12px;
-        }
+        input[type="file"]::file-selector-button:hover { background-color: #e2e8f0; }
+        small { margin-top: 6px; color: #718096; font-size: 12px; }
 
         .btn-cadastrar {
             grid-column: span 2;
@@ -135,78 +112,171 @@
             box-shadow: 0 6px 12px rgba(66, 153, 225, 0.3);
         }
 
-        .btn-cadastrar:active {
-            transform: translateY(0);
+        /* Estilos da Tabela */
+        .table-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 1000px;
+            overflow-x: auto; /* Permite rolagem horizontal se a tela for pequena */
         }
 
-        /* Responsividade: Volta para 1 coluna em telas de celular */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 15px 10px;
+            text-align: left;
+            border-bottom: 1px solid #edf2f7;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #f7fafc;
+            color: #4a5568;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .link-documento {
+            color: #3182ce;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .link-documento:hover {
+            text-decoration: underline;
+        }
+
         @media (max-width: 600px) {
-            form {
-                grid-template-columns: 1fr;
-            }
-            .full-width, .btn-cadastrar {
-                grid-column: span 1;
-            }
+            form { grid-template-columns: 1fr; }
+            .full-width, .btn-cadastrar { grid-column: span 1; }
         }
     </style>
 </head>
 <body>
 
+    <!-- CAIXA DO FORMULÁRIO -->
     <div class="container">
         <h1>Novo Funcionário</h1>
-        
         <form id="formFuncionario">
             <div class="form-group full-width">
                 <label for="nome">Nome Completo</label>
                 <input type="text" id="nome" required placeholder="Ex: João da Silva">
             </div>
-
             <div class="form-group">
                 <label for="cpf">CPF</label>
                 <input type="text" id="cpf" required placeholder="000.000.000-00">
             </div>
-
             <div class="form-group">
                 <label for="dataAdmissao">Data de Admissão</label>
                 <input type="date" id="dataAdmissao" required>
             </div>
-
             <div class="form-group">
                 <label for="departamento">Departamento</label>
                 <input type="text" id="departamento" required placeholder="Ex: Tecnologia">
             </div>
-
             <div class="form-group">
                 <label for="cargo">Cargo</label>
                 <input type="text" id="cargo" required placeholder="Ex: Analista de Sistemas">
             </div>
-
             <div class="form-group full-width">
                 <label for="salario">Salário Bruto (R$)</label>
                 <input type="number" id="salario" step="0.01" required placeholder="Ex: 3500.00">
             </div>
-
             <div class="form-group full-width">
                 <label for="documento">Anexar Documento</label>
                 <input type="file" id="documento" accept=".pdf, image/jpeg, image/png">
                 <small>Formatos aceitos: PDF, JPG ou PNG.</small>
             </div>
-
             <button type="submit" class="btn-cadastrar">Cadastrar Funcionário</button>
         </form>
     </div>
 
-    <!-- Script com a lógica de salvamento -->
+    <!-- CAIXA DA TABELA (NOVIDADE AQUI!) -->
+    <div class="table-container">
+        <h2>Funcionários Cadastrados</h2>
+        <table id="tabelaFuncionarios">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>CPF</th>
+                    <th>Cargo</th>
+                    <th>Departamento</th>
+                    <th>Admissão</th>
+                    <th>Salário</th>
+                    <th>Documento</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- O JavaScript vai colocar as linhas aqui dentro -->
+            </tbody>
+        </table>
+    </div>
+
     <script>
-        // 1. Selecionamos o formulário pelo ID
         const form = document.getElementById('formFuncionario');
 
-        // 2. Criamos um evento que "escuta" quando o botão de submit for clicado
+        // FUNÇÃO NOVA: Lê os dados e monta a tabela
+        function atualizarTabela() {
+            const tbody = document.querySelector('#tabelaFuncionarios tbody');
+            tbody.innerHTML = ''; // Limpa a tabela antes de escrever de novo
+
+            // Pega os dados salvos ou cria uma lista vazia
+            let funcionariosSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
+
+            // Para cada funcionário na lista, cria uma linha (<tr>)
+            funcionariosSalvos.forEach(function(func) {
+                const tr = document.createElement('tr');
+
+                // Formata a data para o padrão brasileiro (DD/MM/AAAA)
+                const partesData = func.dataAdmissao.split('-');
+                const dataFormatada = partesData.length === 3 ? `${partesData[2]}/${partesData[1]}/${partesData[0]}` : func.dataAdmissao;
+
+                // Formata o salário para Real (R$)
+                const salarioFormatado = parseFloat(func.salario).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+                // Verifica se tem documento para criar o link
+                let linkDoc = '<span style="color: #a0aec0; font-size: 12px;">Sem anexo</span>';
+                if (func.documento) {
+                    // Cria um link que permite baixar o arquivo
+                    linkDoc = `<a href="${func.documento}" download="doc_${func.nome.replace(/\s+/g, '_')}" class="link-documento">Baixar</a>`;
+                }
+
+                // Preenche as colunas (<td>)
+                tr.innerHTML = `
+                    <td><strong>${func.nome}</strong></td>
+                    <td>${func.cpf}</td>
+                    <td>${func.cargo}</td>
+                    <td>${func.departamento}</td>
+                    <td>${dataFormatada}</td>
+                    <td>${salarioFormatado}</td>
+                    <td>${linkDoc}</td>
+                `;
+
+                // Adiciona a linha na tabela
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Chama a função logo que a página carrega para mostrar quem já está salvo
+        window.onload = atualizarTabela;
+
+        // Lógica de envio do formulário
         form.addEventListener('submit', function(event) {
-            // Impede que a página recarregue (comportamento padrão do formulário)
             event.preventDefault();
 
-            // 3. Capturamos os valores digitados nos campos
             const nome = document.getElementById('nome').value.trim();
             const cpf = document.getElementById('cpf').value.trim();
             const dataAdmissao = document.getElementById('dataAdmissao').value;
@@ -215,58 +285,41 @@
             const salario = document.getElementById('salario').value;
             const documentoInput = document.getElementById('documento');
 
-            // 4. Validação básica (garante que nada importante está vazio)
             if (!nome || !cpf || !dataAdmissao || !departamento || !cargo || !salario) {
                 alert('Por favor, preencha todos os campos obrigatórios.');
-                return; // Para a execução se algo estiver faltando
+                return;
             }
 
-            // 5. Função para salvar os dados (com ou sem arquivo)
             function salvarDados(documentoBase64 = null) {
-                // Cria um "molde" (objeto) com os dados do funcionário
                 const novoFuncionario = {
-                    id: Date.now(), // Cria um ID único baseado no horário
+                    id: Date.now(),
                     nome: nome,
                     cpf: cpf,
                     dataAdmissao: dataAdmissao,
                     departamento: departamento,
                     cargo: cargo,
                     salario: salario,
-                    documento: documentoBase64 // Salva o arquivo convertido (ou null)
+                    documento: documentoBase64
                 };
 
-                // 6. Busca os funcionários que já estão salvos no localStorage
-                // Se não houver nenhum, cria um array vazio []
                 let funcionariosSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
-
-                // 7. Adiciona o novo funcionário na lista
                 funcionariosSalvos.push(novoFuncionario);
-
-                // 8. Salva a lista atualizada de volta no localStorage
-                // (Precisamos converter para texto usando JSON.stringify)
                 localStorage.setItem('listaFuncionarios', JSON.stringify(funcionariosSalvos));
 
-                alert('Funcionário cadastrado com sucesso!');
-                
-                // 9. Limpa o formulário para o próximo cadastro
                 form.reset();
+                
+                // NOVIDADE AQUI: Atualiza a tabela na mesma hora que cadastra!
+                atualizarTabela(); 
             }
 
-            // 10. Lógica para processar o arquivo (se o usuário selecionou um)
             if (documentoInput.files.length > 0) {
                 const arquivo = documentoInput.files[0];
                 const leitor = new FileReader();
-                
-                // Quando o leitor terminar de ler o arquivo, ele executa esta função
                 leitor.onload = function(e) {
-                    const resultadoBase64 = e.target.result;
-                    salvarDados(resultadoBase64); // Chama a função de salvar passando o arquivo convertido
+                    salvarDados(e.target.result);
                 };
-                
-                // Manda ler o arquivo como uma URL de dados (Base64)
                 leitor.readAsDataURL(arquivo);
             } else {
-                // Se nenhum arquivo foi selecionado, salva apenas os dados de texto
                 salvarDados(null);
             }
         });
