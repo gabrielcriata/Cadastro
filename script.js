@@ -1,4 +1,3 @@
-// --- NAVEGAÇÃO ---
 function mudarAba(evento, idAbaDestino) {
     const botoesMenu = document.querySelectorAll('.menu-item');
     botoesMenu.forEach(botao => botao.classList.remove('ativo'));
@@ -14,96 +13,136 @@ const form = document.getElementById('formFuncionario');
 const btnSubmit = document.getElementById('btnSubmit');
 let idEditando = null;
 
-// --- FUNÇÕES DO DASHBOARD ---
+// --- DADOS DO CALENDÁRIO ---
+const mesesNomes = ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO", "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"];
+const feriados = {
+    "01-01": "Confraternização Universal", "04-21": "Tiradentes", "05-01": "Dia do Trabalho",
+    "09-07": "Independência do Brasil", "10-12": "Nossa Sra. Aparecida", "11-02": "Finados",
+    "11-15": "Proclamação da República", "12-25": "Natal"
+};
+
+let dataAtualCalendario = new Date(); // Data que está sendo exibida
+let dataSelecionadaNota = null;       // Data que o usuário clicou para anotar
+
+// --- FUNÇÃO PARA DESENHAR O CALENDÁRIO ---
+function renderizarCalendario() {
+    const ano = dataAtualCalendario.getFullYear();
+    const mes = dataAtualCalendario.getMonth();
+    
+    document.getElementById('mes-ano-display').innerText = `${mesesNomes[mes]} ${ano}`;
+    const diasGrid = document.getElementById('dias-grid');
+    diasGrid.innerHTML = '';
+
+    const primeiroDiaSemana = new Date(ano, mes, 1).getDay(); // 0(Dom) a 6(Sab)
+    const ultimoDiaMes = new Date(ano, mes + 1, 0).getDate(); // Quantos dias tem o mês
+
+    const hoje = new Date();
+    const notasSalvas = JSON.parse(localStorage.getItem('notasCalendario')) || {};
+
+    // Preenche os espaços em branco antes do dia 1
+    for (let i = 0; i < primeiroDiaSemana; i++) {
+        diasGrid.innerHTML += `<div class="dia-cal dia-vazio"></div>`;
+    }
+
+    // Preenche os dias reais do mês
+    for (let dia = 1; dia <= ultimoDiaMes; dia++) {
+        const dataFormatada = `${ano}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+        const mesDiaFormatado = `${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+        
+        let classesExtras = '';
+        let tituloFerido = '';
+
+        // Marca dia de hoje
+        if (dia === hoje.getDate() && mes === hoje.getMonth() && ano === hoje.getFullYear()) {
+            classesExtras += ' dia-hoje';
+        }
+        
+        // Verifica se é feriado
+        if (feriados[mesDiaFormatado]) {
+            classesExtras += ' dia-feriado';
+            tituloFerido = `title="${feriados[mesDiaFormatado]}"`;
+        }
+
+        // Verifica se tem anotação nesse dia
+        if (notasSalvas[dataFormatada] && notasSalvas[dataFormatada].trim() !== '') {
+            classesExtras += ' tem-nota';
+        }
+
+        diasGrid.innerHTML += `<div class="dia-cal ${classesExtras}" ${tituloFerido} onclick="abrirNotasDia('${dataFormatada}', ${dia})">${dia}</div>`;
+    }
+}
+
+function mudarMes(direcao) {
+    dataAtualCalendario.setMonth(dataAtualCalendario.getMonth() + direcao);
+    fecharNotasDia();
+    renderizarCalendario();
+}
+
+// --- LÓGICA DE ANOTAÇÕES DO CALENDÁRIO ---
+function abrirNotasDia(dataStr, diaNumero) {
+    dataSelecionadaNota = dataStr;
+    const mesNome = mesesNomes[dataAtualCalendario.getMonth()];
+    
+    document.getElementById('titulo-notas-dia').innerText = `Anotações: ${diaNumero} de ${mesNome}`;
+    document.getElementById('painel-notas-dia').style.display = 'block';
+
+    const notasSalvas = JSON.parse(localStorage.getItem('notasCalendario')) || {};
+    document.getElementById('texto-nota-dia').value = notasSalvas[dataStr] || '';
+}
+
+function fecharNotasDia() {
+    document.getElementById('painel-notas-dia').style.display = 'none';
+    dataSelecionadaNota = null;
+}
+
+function salvarNotaDia() {
+    if (!dataSelecionadaNota) return;
+    const texto = document.getElementById('texto-nota-dia').value;
+    
+    let notasSalvas = JSON.parse(localStorage.getItem('notasCalendario')) || {};
+    notasSalvas[dataSelecionadaNota] = texto;
+    localStorage.setItem('notasCalendario', JSON.stringify(notasSalvas));
+    
+    alert("Anotação salva!");
+    renderizarCalendario(); // Atualiza pra mostrar a "bolinha"
+}
+
+
+// --- ATUALIZAR DASHBOARD E TABELA ---
 function formatarDataBR(dataISO) {
     const partes = dataISO.split('-');
     return partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : dataISO;
 }
 
 function atualizarDashboard(funcionarios) {
-    // 1. Contadores
     document.getElementById('contador-funcionarios').innerText = funcionarios.length;
-    
-    const emFerias = funcionarios.filter(f => f.status === 'Férias').length;
-    document.getElementById('contador-ferias').innerText = emFerias;
+    document.getElementById('contador-ferias').innerText = funcionarios.filter(f => f.status === 'Férias').length;
 
-    // 2. Aniversariantes do Mês Atual
-    const dataHoje = new Date();
-    // Como os meses no JavaScript começam em 0 (Janeiro = 0), adicionamos +1
-    const mesAtual = String(dataHoje.getMonth() + 1).padStart(2, '0'); 
-    
+    const mesAtual = String(new Date().getMonth() + 1).padStart(2, '0'); 
     const listaNiver = document.getElementById('lista-aniversariantes');
     listaNiver.innerHTML = '';
     
     let encontrouNiver = false;
     funcionarios.forEach(func => {
         if (func.nascimento) {
-            const mesNascimento = func.nascimento.split('-')[1]; // Pega só o mês da data YYYY-MM-DD
-            if (mesNascimento === mesAtual) {
+            if (func.nascimento.split('-')[1] === mesAtual) {
                 encontrouNiver = true;
-                const diaNasc = func.nascimento.split('-')[2];
-                listaNiver.innerHTML += `<li>🎈 <strong>Dia ${diaNasc}</strong> - ${func.nome}</li>`;
+                listaNiver.innerHTML += `<li>🎈 <strong>Dia ${func.nascimento.split('-')[2]}</strong> - ${func.nome}</li>`;
             }
         }
     });
     if (!encontrouNiver) listaNiver.innerHTML = '<li>Nenhum aniversário este mês.</li>';
-
-    // 3. Prazos Inteligentes (Alerta 5 dias antes)
-    const diaHoje = dataHoje.getDate();
-    
-    const boxEsocial = document.getElementById('alerta-esocial');
-    // Se for entre o dia 10 e 15, fica vermelho!
-    if (diaHoje >= 10 && diaHoje <= 15) {
-        boxEsocial.style.backgroundColor = '#fed7d7';
-        boxEsocial.style.color = '#c53030';
-        boxEsocial.style.borderLeft = '4px solid #e53e3e';
-        boxEsocial.innerHTML = '<strong>⚠️ URGENTE:</strong> Enviar eSocial (Vence dia 15!)';
-    } else {
-        boxEsocial.style.backgroundColor = '#ebf8fa';
-        boxEsocial.style.color = '#234e52';
-        boxEsocial.style.borderLeft = '4px solid #38b2ac';
-        boxEsocial.innerHTML = '<strong>Dia 15:</strong> Enviar fechamento eSocial';
-    }
-
-    const boxFgts = document.getElementById('alerta-fgts');
-    // Se for entre o dia 15 e 20, fica vermelho!
-    if (diaHoje >= 15 && diaHoje <= 20) {
-        boxFgts.style.backgroundColor = '#fed7d7';
-        boxFgts.style.color = '#c53030';
-        boxFgts.style.borderLeft = '4px solid #e53e3e';
-        boxFgts.innerHTML = '<strong>⚠️ URGENTE:</strong> Pagar DARF/FGTS (Vence dia 20!)';
-    } else {
-        boxFgts.style.backgroundColor = '#ebf8fa';
-        boxFgts.style.color = '#234e52';
-        boxFgts.style.borderLeft = '4px solid #38b2ac';
-        boxFgts.innerHTML = '<strong>Dia 20:</strong> Vencimento DARF / FGTS';
-    }
 }
 
-// --- LÓGICA DO BLOCO DE NOTAS ---
-const blocoNotas = document.getElementById('blocoNotas');
-// Quando a página carrega, puxa o texto salvo
-blocoNotas.value = localStorage.getItem('notasRH') || '';
-// Sempre que você digitar algo, ele salva automaticamente
-blocoNotas.addEventListener('input', function() {
-    localStorage.setItem('notasRH', this.value);
-});
-
-
-// --- TABELA ---
 function atualizarTabela() {
     const tbody = document.querySelector('#tabelaFuncionarios tbody');
     tbody.innerHTML = ''; 
 
     let funcionariosSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
-    
-    // Atualiza os dados da tela inicial
     atualizarDashboard(funcionariosSalvos);
 
     funcionariosSalvos.forEach(function(func) {
         const tr = document.createElement('tr');
-        
-        // Proteção para funcionários antigos que não tinham status cadastrado
         const statusExibicao = func.status || 'Ativo'; 
         const badgeStatus = `<span class="badge badge-${statusExibicao}">${statusExibicao}</span>`;
 
@@ -140,7 +179,7 @@ function prepararEdicao(id) {
     if (func) {
         document.getElementById('nome').value = func.nome;
         document.getElementById('cpf').value = func.cpf;
-        document.getElementById('dataNascimento').value = func.nascimento || ''; // Puxa data nova se tiver
+        document.getElementById('dataNascimento').value = func.nascimento || ''; 
         document.getElementById('dataAdmissao').value = func.dataAdmissao;
         document.getElementById('statusFunc').value = func.status || 'Ativo';
         document.getElementById('departamento').value = func.departamento;
@@ -200,7 +239,6 @@ function exportarListaCSV() {
     let funcSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
     if (funcSalvos.length === 0) return alert("Nenhum funcionário cadastrado.");
     
-    // Adicionado os novos campos no CSV (Status e Nascimento)
     let csv = "Status,Nome,CPF,Data de Nascimento,Departamento,Cargo,Data de Admissao,Salario Bruto\n";
     funcSalvos.forEach(f => {
         csv += `"${f.status || 'Ativo'}","${f.nome}","${f.cpf}","${f.nascimento || ''}","${f.departamento}","${f.cargo}","${f.dataAdmissao}","${f.salario}"\n`;
@@ -223,9 +261,12 @@ function processarArquivo(inputElement) {
     });
 }
 
-window.onload = atualizarTabela;
+window.onload = function() {
+    atualizarTabela();
+    renderizarCalendario(); // Inicia o calendário ao carregar a página
+};
 
-// --- SALVAR DADOS ---
+// --- SALVAR DADOS DE FUNCIONÁRIO ---
 form.addEventListener('submit', async function(event) {
     event.preventDefault();
 
@@ -264,7 +305,7 @@ form.addEventListener('submit', async function(event) {
             if (arquivoCTPS) funcSalvos[index].documentos.ctps = arquivoCTPS;
         }
         idEditando = null;
-        btnSubmit.textContent = "Salvar Dados do Funcionário";
+        btnSubmit.textContent = "Salvar Dados";
         btnSubmit.style.background = "linear-gradient(135deg, #4299e1 0%, #3182ce 100%)";
     }
 
