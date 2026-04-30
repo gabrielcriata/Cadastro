@@ -1,68 +1,229 @@
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-body { background-color: #f4f7f6; color: #2d3748; display: flex; min-height: 100vh; }
+// --- NAVEGAÇÃO ---
+function mudarAba(evento, idAbaDestino) {
+    const botoesMenu = document.querySelectorAll('.menu-item');
+    botoesMenu.forEach(botao => botao.classList.remove('ativo'));
 
-.sidebar { width: 250px; background-color: #1a202c; color: white; display: flex; flex-direction: column; }
-.logo { padding: 30px 20px; text-align: center; border-bottom: 1px solid #2d3748; }
-.menu { display: flex; flex-direction: column; padding: 20px 0; }
-.menu-item { background: none; border: none; color: #a0aec0; padding: 15px 25px; text-align: left; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.3s; }
-.menu-item:hover { background-color: #2d3748; color: white; }
-.menu-item.ativo { background-color: #3182ce; color: white; border-left: 4px solid #63b3ed; }
+    const telas = document.querySelectorAll('.aba');
+    telas.forEach(tela => tela.classList.remove('ativa'));
 
-.main-content { flex: 1; padding: 40px; height: 100vh; overflow-y: auto; }
-.aba { display: none; animation: fadeIn 0.4s ease; }
-.aba.ativa { display: block; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    if (evento && evento.target && evento.target.classList.contains('menu-item')) {
+        evento.target.classList.add('ativo');
+    }
 
-.header-tela { margin-bottom: 30px; }
-.cards-container { display: flex; gap: 20px; }
-.card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); min-width: 200px; }
-.card h3 { font-size: 14px; color: #718096; margin-bottom: 10px; }
-.card p { font-size: 32px; font-weight: 700; color: #3182ce; }
-
-.container, .table-container { background-color: #ffffff; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08); width: 100%; }
-.container { max-width: 800px; }
-h1, h2 { color: #1a202c; font-weight: 700; margin-bottom: 30px; }
-h1 { font-size: 26px; }
-
-form { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.form-group { display: flex; flex-direction: column; }
-.full-width { grid-column: span 2; }
-label { margin-bottom: 8px; font-weight: 600; font-size: 14px; color: #4a5568; }
-input[type="text"], input[type="number"], input[type="date"], input[type="file"] { width: 100%; padding: 12px 15px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 15px; background-color: #f7fafc; transition: all 0.3s; }
-input:focus { outline: none; border-color: #4299e1; background-color: #ffffff; box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15); }
-input[type="file"] { padding: 10px; cursor: pointer; }
-input[type="file"]::file-selector-button { background-color: #edf2f7; border: none; padding: 8px 16px; border-radius: 6px; color: #4a5568; font-weight: 600; cursor: pointer; margin-right: 15px; transition: background-color 0.2s; }
-
-.btn-cadastrar { grid-column: span 2; margin-top: 10px; padding: 14px; background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
-.btn-cadastrar:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(66, 153, 225, 0.3); }
-
-table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 800px; }
-th, td { padding: 15px 10px; text-align: left; border-bottom: 1px solid #edf2f7; font-size: 14px; }
-th { background-color: #f7fafc; color: #4a5568; font-weight: 600; text-transform: uppercase; font-size: 12px; }
-tr:hover { background-color: #f8fafc; }
-
-.acoes-container { display: flex; gap: 8px; flex-wrap: wrap; }
-.btn-acao { padding: 6px 10px; border: none; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; color: white; transition: background-color 0.2s; }
-.btn-perfil { background-color: #48bb78; } .btn-perfil:hover { background-color: #2f855a; }
-.btn-editar { background-color: #f6ad55; } .btn-editar:hover { background-color: #dd6b20; }
-.btn-excluir { background-color: #fc8181; } .btn-excluir:hover { background-color: #e53e3e; }
-.btn-voltar { background-color: #718096; padding: 10px 15px; font-size: 14px; } .btn-voltar:hover { background-color: #4a5568; }
-
-.perfil-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 25px 0; }
-.perfil-info strong { color: #4a5568; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-.perfil-info p { font-size: 16px; color: #1a202c; margin-top: 4px; }
-
-.area-documentos-perfil { margin-top: 20px; padding: 20px; border: 1px dashed #cbd5e0; border-radius: 8px; background-color: #f7fafc; }
-.doc-item { display: flex; justify-content: space-between; align-items: center; background: white; padding: 10px 15px; border-radius: 6px; margin-top: 10px; border: 1px solid #e2e8f0; }
-
-@media (max-width: 768px) { body { flex-direction: column; } .sidebar { width: 100%; height: auto; } form { grid-template-columns: 1fr; } .full-width, .btn-cadastrar { grid-column: span 1; } .table-container { overflow-x: auto; } }
-
-/* === REGRAS DE IMPRESSÃO (PDF) === */
-@media print {
-    body { background-color: white; }
-    .sidebar, .cabecalho-perfil, .acoes-container { display: none !important; }
-    .main-content { padding: 0 !important; width: 100% !important; overflow: visible !important; }
-    .aba { display: none !important; }
-    #tela-perfil { display: block !important; }
-    .container { box-shadow: none; border: 1px solid #e2e8f0; }
+    document.getElementById(idAbaDestino).classList.add('ativa');
 }
+
+const form = document.getElementById('formFuncionario');
+const btnSubmit = document.getElementById('btnSubmit');
+let idEditando = null;
+
+// --- ATUALIZAR TABELA ---
+function atualizarTabela() {
+    const tbody = document.querySelector('#tabelaFuncionarios tbody');
+    tbody.innerHTML = ''; 
+
+    let funcionariosSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
+    document.getElementById('contador-funcionarios').innerText = funcionariosSalvos.length;
+
+    funcionariosSalvos.forEach(function(func) {
+        const tr = document.createElement('tr');
+        const partesData = func.dataAdmissao.split('-');
+        const dataFormatada = partesData.length === 3 ? `${partesData[2]}/${partesData[1]}/${partesData[0]}` : func.dataAdmissao;
+        const salarioFormatado = parseFloat(func.salario).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        tr.innerHTML = `
+            <td><strong>${func.nome}</strong></td>
+            <td>${func.cpf}</td>
+            <td>${func.cargo}</td>
+            <td>${dataFormatada}</td>
+            <td>${salarioFormatado}</td>
+            <td>
+                <div class="acoes-container">
+                    <button class="btn-acao btn-perfil" onclick="verPerfil(${func.id})">Perfil</button>
+                    <button class="btn-acao btn-editar" onclick="prepararEdicao(${func.id})">Editar</button>
+                    <button class="btn-acao btn-excluir" onclick="excluirFuncionario(${func.id})">Excluir</button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function excluirFuncionario(id) {
+    if (confirm("Tem certeza que deseja excluir este funcionário?")) {
+        let funcionariosSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
+        funcionariosSalvos = funcionariosSalvos.filter(func => func.id !== id);
+        localStorage.setItem('listaFuncionarios', JSON.stringify(funcionariosSalvos));
+        atualizarTabela();
+    }
+}
+
+function prepararEdicao(id) {
+    let funcionariosSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
+    const func = funcionariosSalvos.find(f => f.id === id);
+
+    if (func) {
+        document.getElementById('nome').value = func.nome;
+        document.getElementById('cpf').value = func.cpf;
+        document.getElementById('dataAdmissao').value = func.dataAdmissao;
+        document.getElementById('departamento').value = func.departamento;
+        document.getElementById('cargo').value = func.cargo;
+        document.getElementById('salario').value = func.salario;
+        
+        idEditando = id;
+        btnSubmit.textContent = "Salvar Alterações";
+        btnSubmit.style.background = "linear-gradient(135deg, #f6ad55 0%, #ed8936 100%)";
+        document.querySelectorAll('.menu-item')[1].click();
+    }
+}
+
+// --- VER PERFIL (AGORA COM LISTA DE DOCUMENTOS) ---
+function verPerfil(id) {
+    let funcionariosSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
+    const func = funcionariosSalvos.find(f => f.id === id);
+
+    if (func) {
+        const conteinerPerfil = document.getElementById('conteudo-perfil');
+        const partesData = func.dataAdmissao.split('-');
+        const dataFormatada = partesData.length === 3 ? `${partesData[2]}/${partesData[1]}/${partesData[0]}` : func.dataAdmissao;
+        const salarioFormatado = parseFloat(func.salario).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        // Monta a lista de arquivos salvos
+        let htmlDocs = '';
+        if (func.documentos && func.documentos.rg) {
+            htmlDocs += `<div class="doc-item">
+                            <span>📄 RG/CPF: <strong>${func.documentos.rg.nome}</strong></span>
+                            <a href="${func.documentos.rg.base64}" download="${func.documentos.rg.nome}" class="link-documento">Baixar</a>
+                         </div>`;
+        }
+        if (func.documentos && func.documentos.ctps) {
+            htmlDocs += `<div class="doc-item">
+                            <span>📄 Carteira de Trabalho: <strong>${func.documentos.ctps.nome}</strong></span>
+                            <a href="${func.documentos.ctps.base64}" download="${func.documentos.ctps.nome}" class="link-documento">Baixar</a>
+                         </div>`;
+        }
+        if (htmlDocs === '') {
+            htmlDocs = '<p style="color: #a0aec0; margin-top: 10px;">Nenhum documento anexado.</p>';
+        }
+
+        conteinerPerfil.innerHTML = `
+            <h2 style="margin-bottom: 5px; font-size: 24px; color: #2b6cb0;">${func.nome}</h2>
+            <p style="color: #718096; font-size: 16px;">${func.cargo} • Departamento de ${func.departamento}</p>
+            <hr style="border: none; border-top: 1px solid #edf2f7; margin: 20px 0;">
+            <div class="perfil-grid">
+                <div class="perfil-info"><strong>CPF</strong><p>${func.cpf}</p></div>
+                <div class="perfil-info"><strong>Admissão</strong><p>${dataFormatada}</p></div>
+                <div class="perfil-info"><strong>Salário Bruto</strong><p>${salarioFormatado}</p></div>
+            </div>
+            <div class="area-documentos-perfil">
+                <strong style="color: #4a5568;">Arquivos Anexados</strong>
+                ${htmlDocs}
+            </div>
+        `;
+        mudarAba(null, 'tela-perfil');
+    }
+}
+
+// --- EXPORTAR PARA EXCEL (CSV) ---
+function exportarListaCSV() {
+    let funcionariosSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
+    if (funcionariosSalvos.length === 0) {
+        alert("Nenhum funcionário cadastrado para exportar.");
+        return;
+    }
+
+    // Cria o cabeçalho do arquivo CSV
+    let csv = "Nome,CPF,Departamento,Cargo,Data de Admissao,Salario Bruto\n";
+
+    // Adiciona cada funcionário em uma linha
+    funcionariosSalvos.forEach(func => {
+        csv += `"${func.nome}","${func.cpf}","${func.departamento}","${func.cargo}","${func.dataAdmissao}","${func.salario}"\n`;
+    });
+
+    // Cria o arquivo e força o download
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "lista_funcionarios.csv");
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// --- FUNÇÃO PARA LER ARQUIVOS (NOVIDADE) ---
+// Transforma o arquivo em texto para o navegador conseguir salvar
+function processarArquivo(inputElement) {
+    return new Promise((resolve) => {
+        if (!inputElement.files || inputElement.files.length === 0) {
+            resolve(null); // Nenhum arquivo selecionado
+        } else {
+            const arquivo = inputElement.files[0];
+            const leitor = new FileReader();
+            leitor.onload = function(e) {
+                resolve({ nome: arquivo.name, base64: e.target.result });
+            };
+            leitor.readAsDataURL(arquivo);
+        }
+    });
+}
+
+window.onload = atualizarTabela;
+
+// --- SALVAR DADOS ---
+form.addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const nome = document.getElementById('nome').value.trim();
+    const cpf = document.getElementById('cpf').value.trim();
+    const dataAdmissao = document.getElementById('dataAdmissao').value;
+    const departamento = document.getElementById('departamento').value.trim();
+    const cargo = document.getElementById('cargo').value.trim();
+    const salario = document.getElementById('salario').value;
+
+    if (!nome || !cpf || !dataAdmissao || !departamento || !cargo || !salario) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+    }
+
+    // Lê os arquivos selecionados (aguarda o processo terminar)
+    const arquivoRG = await processarArquivo(document.getElementById('docRG'));
+    const arquivoCTPS = await processarArquivo(document.getElementById('docCTPS'));
+
+    let funcionariosSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
+
+    if (idEditando === null) {
+        // NOVO CADASTRO
+        const novoFuncionario = {
+            id: Date.now(), nome, cpf, dataAdmissao, departamento, cargo, salario,
+            documentos: { rg: arquivoRG, ctps: arquivoCTPS }
+        };
+        funcionariosSalvos.push(novoFuncionario);
+    } else {
+        // EDIÇÃO
+        const index = funcionariosSalvos.findIndex(f => f.id === idEditando);
+        if (index !== -1) {
+            funcionariosSalvos[index].nome = nome;
+            funcionariosSalvos[index].cpf = cpf;
+            funcionariosSalvos[index].dataAdmissao = dataAdmissao;
+            funcionariosSalvos[index].departamento = departamento;
+            funcionariosSalvos[index].cargo = cargo;
+            funcionariosSalvos[index].salario = salario;
+            
+            // Mantém o arquivo antigo se a pessoa não enviou um novo na edição
+            if (!funcionariosSalvos[index].documentos) funcionariosSalvos[index].documentos = {};
+            if (arquivoRG) funcionariosSalvos[index].documentos.rg = arquivoRG;
+            if (arquivoCTPS) funcionariosSalvos[index].documentos.ctps = arquivoCTPS;
+        }
+        
+        idEditando = null;
+        btnSubmit.textContent = "Cadastrar Funcionário";
+        btnSubmit.style.background = "linear-gradient(135deg, #4299e1 0%, #3182ce 100%)";
+    }
+
+    localStorage.setItem('listaFuncionarios', JSON.stringify(funcionariosSalvos));
+    form.reset();
+    atualizarTabela(); 
+    document.querySelectorAll('.menu-item')[2].click();
+});
