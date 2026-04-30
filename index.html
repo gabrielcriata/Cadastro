@@ -4,19 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Gestão RH</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <aside class="sidebar">
         <div class="logo">
-            <h2>Meu RH</h2>
+            <h2>✨ Meu RH</h2>
         </div>
         <nav class="menu">
-            <button class="menu-item ativo" onclick="mudarAba(event, 'tela-dashboard')">Dashboard</button>
-            <button class="menu-item" onclick="mudarAba(event, 'tela-admissao')">Nova Admissão</button>
-            <button class="menu-item" onclick="mudarAba(event, 'tela-equipe')">Equipe</button>
+            <button class="menu-item ativo" onclick="mudarAba(event, 'tela-dashboard')">📊 Dashboard</button>
+            <button class="menu-item" onclick="mudarAba(event, 'tela-admissao')">📝 Nova Admissão</button>
+            <button class="menu-item" onclick="mudarAba(event, 'tela-equipe')">👥 Equipe</button>
         </nav>
     </aside>
 
@@ -31,26 +31,25 @@
             
             <div class="dashboard-grid">
                 <div class="coluna-cards">
-                    <div class="card">
+                    <div class="card card-destaque">
                         <h3>Total de Funcionários</h3>
-                        <p id="contador-funcionarios" class="destaque-azul">0</p>
+                        <div class="numero-circulo circulo-roxo" id="contador-funcionarios">0</div>
                     </div>
-                    <div class="card">
-                        <h3>🏖️ Funcionários em Férias</h3>
-                        <p id="contador-ferias" class="destaque-laranja">0</p>
+                    <div class="card card-destaque">
+                        <h3>Funcionários em Férias</h3>
+                        <div class="numero-circulo circulo-laranja" id="contador-ferias">0</div>
                     </div>
-                    <div class="card">
+                    <div class="card card-destaque">
                         <h3>🎂 Aniversariantes do Mês</h3>
                         <ul id="lista-aniversariantes" class="lista-simples"></ul>
                     </div>
                 </div>
 
                 <div class="coluna-ferramentas">
-                    <!-- NOVO: CALENDÁRIO INTERATIVO -->
                     <div class="card" style="padding: 20px;">
                         <div class="calendario-header">
                             <div>
-                                <h3 id="mes-ano-display" style="font-size: 18px; color: #1a202c; font-weight: 700;">MÊS ANO</h3>
+                                <h3 id="mes-ano-display" style="font-size: 18px; color: #1a202c; font-weight: 800;">MÊS ANO</h3>
                             </div>
                             <div>
                                 <button class="btn-cal" onclick="mudarMes(-1)">&#10094;</button>
@@ -66,14 +65,13 @@
                         </div>
                     </div>
 
-                    <!-- NOVO: PAINEL DE ANOTAÇÕES DO DIA -->
-                    <div class="card" id="painel-notas-dia" style="display: none; border-left: 4px solid #3182ce;">
+                    <div class="card" id="painel-notas-dia" style="display: none; border-left: 4px solid #00C4CC;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <h3 id="titulo-notas-dia" style="color: #2b6cb0;">Anotações do Dia</h3>
+                            <h3 id="titulo-notas-dia" style="color: #00C4CC; font-weight: 800;">Anotações do Dia</h3>
                             <button onclick="fecharNotasDia()" style="background:none; border:none; cursor:pointer; font-size: 16px; color: #a0aec0;">✖</button>
                         </div>
-                        <textarea id="texto-nota-dia" placeholder="Escreva recados, faltas ou atestados para esta data..." style="width: 100%; min-height: 100px; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; resize: vertical; outline: none; margin-bottom: 10px;"></textarea>
-                        <button class="btn-acao btn-editar" onclick="salvarNotaDia()" style="width: 100%; padding: 10px;">Salvar Anotação nesta Data</button>
+                        <textarea id="texto-nota-dia" placeholder="Escreva recados, faltas ou atestados para esta data..." style="width: 100%; min-height: 100px; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; resize: vertical; outline: none; margin-bottom: 10px;"></textarea>
+                        <button class="btn-acao btn-editar" onclick="salvarNotaDia()" style="width: 100%; padding: 12px;">Salvar Anotação</button>
                     </div>
                 </div>
             </div>
@@ -85,23 +83,23 @@
                 <h1>Novo Funcionário</h1>
                 <form id="formFuncionario">
                     <div class="form-group full-width">
-                        <label for="nome">Nome Completo</label>
+                        <label for="nome">👤 Nome Completo</label>
                         <input type="text" id="nome" required placeholder="Ex: João da Silva">
                     </div>
                     <div class="form-group">
-                        <label for="cpf">CPF</label>
+                        <label for="cpf">🆔 CPF</label>
                         <input type="text" id="cpf" required placeholder="000.000.000-00">
                     </div>
                     <div class="form-group">
-                        <label for="dataNascimento">Data de Nascimento</label>
+                        <label for="dataNascimento">🎈 Data de Nascimento</label>
                         <input type="date" id="dataNascimento" required>
                     </div>
                     <div class="form-group">
-                        <label for="dataAdmissao">Data de Admissão</label>
+                        <label for="dataAdmissao">📅 Data de Admissão</label>
                         <input type="date" id="dataAdmissao" required>
                     </div>
                     <div class="form-group">
-                        <label for="statusFunc">Status Inicial</label>
+                        <label for="statusFunc">🟢 Status Inicial</label>
                         <select id="statusFunc" required class="input-padrao">
                             <option value="Ativo">🟢 Ativo</option>
                             <option value="Férias">🟠 De Férias</option>
@@ -109,26 +107,26 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="departamento">Departamento</label>
+                        <label for="departamento">🏢 Departamento</label>
                         <input type="text" id="departamento" required placeholder="Ex: Tecnologia">
                     </div>
                     <div class="form-group">
-                        <label for="cargo">Cargo</label>
+                        <label for="cargo">💼 Cargo</label>
                         <input type="text" id="cargo" required placeholder="Ex: Analista de Sistemas">
                     </div>
                     <div class="form-group full-width">
-                        <label for="salario">Salário Bruto (R$)</label>
+                        <label for="salario">💰 Salário Bruto (R$)</label>
                         <input type="number" id="salario" step="0.01" required placeholder="Ex: 3500.00">
                     </div>
                     <div class="form-group">
-                        <label for="docRG">Cópia do RG/CPF</label>
+                        <label for="docRG">📄 Cópia do RG/CPF</label>
                         <input type="file" id="docRG" accept=".pdf, image/jpeg, image/png">
                     </div>
                     <div class="form-group">
-                        <label for="docCTPS">Carteira de Trabalho (CTPS)</label>
+                        <label for="docCTPS">📘 Carteira de Trabalho</label>
                         <input type="file" id="docCTPS" accept=".pdf, image/jpeg, image/png">
                     </div>
-                    <button type="submit" class="btn-cadastrar" id="btnSubmit">Salvar Dados</button>
+                    <button type="submit" class="btn-cadastrar" id="btnSubmit">✨ Salvar Dados</button>
                 </form>
             </div>
         </section>
@@ -136,9 +134,9 @@
         <!-- TELA 3: EQUIPE -->
         <section id="tela-equipe" class="aba">
             <div class="table-container">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
                     <h2 style="margin-bottom: 0;">Funcionários Cadastrados</h2>
-                    <button class="btn-acao btn-perfil" onclick="exportarListaCSV()" style="padding: 10px 15px;">📥 Exportar Tabela</button>
+                    <button class="btn-acao" onclick="exportarListaCSV()" style="background-color: #00C4CC; color: white; padding: 12px 20px; box-shadow: 0 4px 12px rgba(0, 196, 204, 0.3);">📥 Exportar Tabela</button>
                 </div>
                 <table id="tabelaFuncionarios">
                     <thead>
@@ -159,7 +157,7 @@
         <section id="tela-perfil" class="aba">
             <div class="header-tela cabecalho-perfil" style="display: flex; justify-content: space-between; align-items: center;">
                 <button class="btn-acao btn-voltar" onclick="mudarAba(null, 'tela-equipe')">← Voltar para Equipe</button>
-                <button class="btn-acao btn-imprimir" onclick="window.print()" style="background-color: #3182ce; padding: 10px 15px;">🖨️ Imprimir Ficha</button>
+                <button class="btn-acao btn-imprimir" onclick="window.print()">🖨️ Imprimir Ficha</button>
             </div>
             <div class="container" id="conteudo-perfil" style="margin-top: 20px;"></div>
         </section>
