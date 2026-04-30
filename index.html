@@ -196,5 +196,80 @@
         </form>
     </div>
 
+    <!-- Script com a lógica de salvamento -->
+    <script>
+        // 1. Selecionamos o formulário pelo ID
+        const form = document.getElementById('formFuncionario');
+
+        // 2. Criamos um evento que "escuta" quando o botão de submit for clicado
+        form.addEventListener('submit', function(event) {
+            // Impede que a página recarregue (comportamento padrão do formulário)
+            event.preventDefault();
+
+            // 3. Capturamos os valores digitados nos campos
+            const nome = document.getElementById('nome').value.trim();
+            const cpf = document.getElementById('cpf').value.trim();
+            const dataAdmissao = document.getElementById('dataAdmissao').value;
+            const departamento = document.getElementById('departamento').value.trim();
+            const cargo = document.getElementById('cargo').value.trim();
+            const salario = document.getElementById('salario').value;
+            const documentoInput = document.getElementById('documento');
+
+            // 4. Validação básica (garante que nada importante está vazio)
+            if (!nome || !cpf || !dataAdmissao || !departamento || !cargo || !salario) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return; // Para a execução se algo estiver faltando
+            }
+
+            // 5. Função para salvar os dados (com ou sem arquivo)
+            function salvarDados(documentoBase64 = null) {
+                // Cria um "molde" (objeto) com os dados do funcionário
+                const novoFuncionario = {
+                    id: Date.now(), // Cria um ID único baseado no horário
+                    nome: nome,
+                    cpf: cpf,
+                    dataAdmissao: dataAdmissao,
+                    departamento: departamento,
+                    cargo: cargo,
+                    salario: salario,
+                    documento: documentoBase64 // Salva o arquivo convertido (ou null)
+                };
+
+                // 6. Busca os funcionários que já estão salvos no localStorage
+                // Se não houver nenhum, cria um array vazio []
+                let funcionariosSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
+
+                // 7. Adiciona o novo funcionário na lista
+                funcionariosSalvos.push(novoFuncionario);
+
+                // 8. Salva a lista atualizada de volta no localStorage
+                // (Precisamos converter para texto usando JSON.stringify)
+                localStorage.setItem('listaFuncionarios', JSON.stringify(funcionariosSalvos));
+
+                alert('Funcionário cadastrado com sucesso!');
+                
+                // 9. Limpa o formulário para o próximo cadastro
+                form.reset();
+            }
+
+            // 10. Lógica para processar o arquivo (se o usuário selecionou um)
+            if (documentoInput.files.length > 0) {
+                const arquivo = documentoInput.files[0];
+                const leitor = new FileReader();
+                
+                // Quando o leitor terminar de ler o arquivo, ele executa esta função
+                leitor.onload = function(e) {
+                    const resultadoBase64 = e.target.result;
+                    salvarDados(resultadoBase64); // Chama a função de salvar passando o arquivo convertido
+                };
+                
+                // Manda ler o arquivo como uma URL de dados (Base64)
+                leitor.readAsDataURL(arquivo);
+            } else {
+                // Se nenhum arquivo foi selecionado, salva apenas os dados de texto
+                salvarDados(null);
+            }
+        });
+    </script>
 </body>
 </html>
