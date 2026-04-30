@@ -9,7 +9,6 @@
 </head>
 <body>
 
-    <!-- MENU LATERAL -->
     <aside class="sidebar">
         <div class="logo">
             <h2>Meu RH</h2>
@@ -21,7 +20,6 @@
         </nav>
     </aside>
 
-    <!-- ÁREA PRINCIPAL ONDE AS TELAS APARECEM -->
     <main class="main-content">
 
         <!-- TELA 1: DASHBOARD -->
@@ -38,7 +36,7 @@
             </div>
         </section>
 
-        <!-- TELA 2: NOVA ADMISSÃO (Seu formulário atual) -->
+        <!-- TELA 2: NOVA ADMISSÃO -->
         <section id="tela-admissao" class="aba">
             <div class="container">
                 <h1>Novo Funcionário</h1>
@@ -67,30 +65,39 @@
                         <label for="salario">Salário Bruto (R$)</label>
                         <input type="number" id="salario" step="0.01" required placeholder="Ex: 3500.00">
                     </div>
-                    <div class="form-group full-width">
-                        <label for="documento">Anexar Documento</label>
-                        <input type="file" id="documento" accept=".pdf, image/jpeg, image/png">
-                        <small>Formatos aceitos: PDF, JPG ou PNG.</small>
+                    
+                    <!-- NOVOS CAMPOS DE DOCUMENTOS -->
+                    <div class="form-group">
+                        <label for="docRG">Cópia do RG/CPF</label>
+                        <input type="file" id="docRG" accept=".pdf, image/jpeg, image/png">
                     </div>
+                    <div class="form-group">
+                        <label for="docCTPS">Carteira de Trabalho (CTPS)</label>
+                        <input type="file" id="docCTPS" accept=".pdf, image/jpeg, image/png">
+                    </div>
+
                     <button type="submit" class="btn-cadastrar" id="btnSubmit">Cadastrar Funcionário</button>
                 </form>
             </div>
         </section>
 
-        <!-- TELA 3: EQUIPE (Sua tabela atual) -->
+        <!-- TELA 3: EQUIPE -->
         <section id="tela-equipe" class="aba">
             <div class="table-container">
-                <h2>Funcionários Cadastrados</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin-bottom: 0;">Funcionários Cadastrados</h2>
+                    <!-- NOVO BOTÃO: EXPORTAR LISTA -->
+                    <button class="btn-acao btn-perfil" onclick="exportarListaCSV()" style="padding: 10px 15px;">📥 Exportar Tabela (Excel)</button>
+                </div>
+                
                 <table id="tabelaFuncionarios">
                     <thead>
                         <tr>
                             <th>Nome</th>
                             <th>CPF</th>
                             <th>Cargo</th>
-                            <th>Departamento</th>
                             <th>Admissão</th>
                             <th>Salário</th>
-                            <th>Documento</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
@@ -100,14 +107,16 @@
                 </table>
             </div>
         </section>
+
         <!-- TELA 4: PERFIL DO FUNCIONÁRIO -->
         <section id="tela-perfil" class="aba">
-            <div class="header-tela">
+            <div class="header-tela cabecalho-perfil" style="display: flex; justify-content: space-between; align-items: center;">
                 <button class="btn-acao btn-voltar" onclick="mudarAba(null, 'tela-equipe')">← Voltar para Equipe</button>
-                <h1 style="margin-top: 20px;">Ficha do Funcionário</h1>
+                <!-- NOVO BOTÃO: IMPRIMIR/PDF -->
+                <button class="btn-acao btn-imprimir" onclick="window.print()" style="background-color: #3182ce; padding: 10px 15px;">🖨️ Imprimir / Salvar PDF</button>
             </div>
             
-            <div class="container" id="conteudo-perfil">
+            <div class="container" id="conteudo-perfil" style="margin-top: 20px;">
                 <!-- O JavaScript vai injetar os dados do funcionário aqui -->
             </div>
         </section>
