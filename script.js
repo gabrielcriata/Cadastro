@@ -1,10 +1,13 @@
 // --- NOTIFICAÇÕES (TOAST) ---
 function mostrarToast(mensagem, tipo = 'success') {
     const container = document.getElementById('toast-container');
+    if (!container) return; // Segurança caso a div não exista
+    
     const toast = document.createElement('div');
     toast.className = `toast ${tipo}`;
     toast.innerHTML = `<span>${tipo === 'success' ? '✅' : '⚠️'}</span> ${mensagem}`;
     container.appendChild(toast);
+    
     setTimeout(() => {
         toast.style.opacity = '0';
         setTimeout(() => toast.remove(), 500);
@@ -36,12 +39,16 @@ if (inputSalario) {
 function mudarAba(evento, idAbaDestino) {
     const botoesMenu = document.querySelectorAll('.menu-item');
     botoesMenu.forEach(botao => botao.classList.remove('ativo'));
+    
     const telas = document.querySelectorAll('.aba');
     telas.forEach(tela => tela.classList.remove('ativa'));
+    
     if (evento && evento.target && evento.target.classList.contains('menu-item')) {
         evento.target.classList.add('ativo');
     }
-    document.getElementById(idAbaDestino).classList.add('ativa');
+    
+    const telaDestino = document.getElementById(idAbaDestino);
+    if (telaDestino) telaDestino.classList.add('ativa');
 }
 
 const form = document.getElementById('formFuncionario');
@@ -60,11 +67,15 @@ let dataAtualCalendario = new Date();
 let dataSelecionadaNota = null;
 
 function renderizarCalendario() {
+    const mesAnoDisplay = document.getElementById('mes-ano-display');
+    const diasGrid = document.getElementById('dias-grid');
+    
+    if (!mesAnoDisplay || !diasGrid) return; // Previne o erro silencioso
+
     const ano = dataAtualCalendario.getFullYear();
     const mes = dataAtualCalendario.getMonth();
     
-    document.getElementById('mes-ano-display').innerText = `${mesesNomes[mes]} ${ano}`;
-    const diasGrid = document.getElementById('dias-grid');
+    mesAnoDisplay.innerText = `${mesesNomes[mes]} ${ano}`;
     diasGrid.innerHTML = '';
 
     const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
@@ -100,22 +111,33 @@ function mudarMes(direcao) {
 function abrirNotasDia(dataStr, diaNumero) {
     dataSelecionadaNota = dataStr;
     const mesNome = mesesNomes[dataAtualCalendario.getMonth()];
-    document.getElementById('titulo-notas-dia').innerText = `Anotações: ${diaNumero} de ${mesNome}`;
-    document.getElementById('painel-notas-dia').style.display = 'block';
+    
+    const painel = document.getElementById('painel-notas-dia');
+    const titulo = document.getElementById('titulo-notas-dia');
+    const texto = document.getElementById('texto-nota-dia');
+    
+    if (!painel || !titulo || !texto) return;
+
+    titulo.innerText = `Anotações: ${diaNumero} de ${mesNome}`;
+    painel.style.display = 'block';
+    
     const notasSalvas = JSON.parse(localStorage.getItem('notasCalendario')) || {};
-    document.getElementById('texto-nota-dia').value = notasSalvas[dataStr] || '';
+    texto.value = notasSalvas[dataStr] || '';
 }
 
 function fecharNotasDia() {
-    document.getElementById('painel-notas-dia').style.display = 'none';
+    const painel = document.getElementById('painel-notas-dia');
+    if (painel) painel.style.display = 'none';
     dataSelecionadaNota = null;
 }
 
 function salvarNotaDia() {
     if (!dataSelecionadaNota) return;
-    const texto = document.getElementById('texto-nota-dia').value;
+    const texto = document.getElementById('texto-nota-dia');
+    if (!texto) return;
+    
     let notasSalvas = JSON.parse(localStorage.getItem('notasCalendario')) || {};
-    notasSalvas[dataSelecionadaNota] = texto;
+    notasSalvas[dataSelecionadaNota] = texto.value;
     localStorage.setItem('notasCalendario', JSON.stringify(notasSalvas));
     mostrarToast("Anotação salva com sucesso!");
     renderizarCalendario(); 
@@ -155,10 +177,15 @@ function importarBackup(event) {
     leitor.readAsText(arquivo);
 }
 
-// --- BUSCA E FILTROS ---
+// --- BUSCA NA TABELA ---
 function filtrarTabela() {
-    const busca = document.getElementById('inputBusca').value.toLowerCase();
+    const input = document.getElementById('inputBusca');
+    if (!input) return;
+    
+    const busca = input.value.toLowerCase();
     const tbody = document.querySelector('#tabelaFuncionarios tbody');
+    if (!tbody) return;
+
     const linhas = tbody.getElementsByTagName('tr');
 
     for (let linha of linhas) {
@@ -171,34 +198,42 @@ function filtrarTabela() {
     }
 }
 
-// --- DASHBOARD E TABELA ---
+// --- ATUALIZAÇÃO DA INTERFACE ---
 function formatarDataBR(dataISO) {
+    if (!dataISO) return '';
     const partes = dataISO.split('-');
     return partes.length === 3 ? `${partes[2]}/${partes[1]}/${partes[0]}` : dataISO;
 }
 
 function atualizarDashboard(funcionarios) {
-    document.getElementById('contador-funcionarios').innerText = funcionarios.length;
-    document.getElementById('contador-ferias').innerText = funcionarios.filter(f => f.status === 'Férias').length;
+    const contFunc = document.getElementById('contador-funcionarios');
+    if (contFunc) contFunc.innerText = funcionarios.length;
 
-    const mesAtual = String(new Date().getMonth() + 1).padStart(2, '0'); 
+    const contFerias = document.getElementById('contador-ferias');
+    if (contFerias) contFerias.innerText = funcionarios.filter(f => f.status === 'Férias').length;
+
     const listaNiver = document.getElementById('lista-aniversariantes');
-    listaNiver.innerHTML = '';
-    
-    let encontrouNiver = false;
-    funcionarios.forEach(func => {
-        if (func.nascimento) {
-            if (func.nascimento.split('-')[1] === mesAtual) {
-                encontrouNiver = true;
-                listaNiver.innerHTML += `<li>🎈 <strong>Dia ${func.nascimento.split('-')[2]}</strong> - ${func.nome}</li>`;
+    if (listaNiver) {
+        const mesAtual = String(new Date().getMonth() + 1).padStart(2, '0'); 
+        listaNiver.innerHTML = '';
+        
+        let encontrouNiver = false;
+        funcionarios.forEach(func => {
+            if (func.nascimento) {
+                if (func.nascimento.split('-')[1] === mesAtual) {
+                    encontrouNiver = true;
+                    listaNiver.innerHTML += `<li>🎈 <strong>Dia ${func.nascimento.split('-')[2]}</strong> - ${func.nome}</li>`;
+                }
             }
-        }
-    });
-    if (!encontrouNiver) listaNiver.innerHTML = '<li>Nenhum aniversário este mês.</li>';
+        });
+        if (!encontrouNiver) listaNiver.innerHTML = '<li>Nenhum aniversário este mês.</li>';
+    }
 }
 
 function atualizarTabela() {
     const tbody = document.querySelector('#tabelaFuncionarios tbody');
+    if (!tbody) return; // Se a tabela não existir no HTML, o JS não trava mais!
+
     tbody.innerHTML = ''; 
 
     let funcionariosSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
@@ -207,12 +242,13 @@ function atualizarTabela() {
     funcionariosSalvos.forEach(function(func) {
         const tr = document.createElement('tr');
         const statusExibicao = func.status || 'Ativo'; 
-        const badgeStatus = `<span class="badge badge-${statusExibicao}">${statusExibicao}</span>`;
+        const badgeClass = statusExibicao.replace(/\s+/g, ''); // Resolve problemas com espaços
+        const badgeStatus = `<span class="badge badge-${badgeClass}">${statusExibicao}</span>`;
 
         tr.innerHTML = `
             <td>${badgeStatus}</td>
-            <td><strong>${func.nome}</strong><br><small style="color: #718096">${func.cpf}</small></td>
-            <td>${func.cargo}</td>
+            <td><strong>${func.nome}</strong><br><small style="color: #718096">${func.cpf || ''}</small></td>
+            <td>${func.cargo || ''}</td>
             <td>
                 <div class="acoes-container">
                     <button class="btn-acao btn-perfil" onclick="verPerfil(${func.id})">Perfil</button>
@@ -240,18 +276,22 @@ function prepararEdicao(id) {
     const func = funcSalvos.find(f => f.id === id);
 
     if (func) {
-        document.getElementById('nome').value = func.nome;
-        document.getElementById('cpf').value = func.cpf;
-        document.getElementById('dataNascimento').value = func.nascimento || ''; 
-        document.getElementById('dataAdmissao').value = func.dataAdmissao;
-        document.getElementById('statusFunc').value = func.status || 'Ativo';
-        document.getElementById('departamento').value = func.departamento;
-        document.getElementById('cargo').value = func.cargo;
-        document.getElementById('salario').value = func.salario;
+        const setVal = (idEl, val) => { const el = document.getElementById(idEl); if(el) el.value = val; }
+        
+        setVal('nome', func.nome);
+        setVal('cpf', func.cpf);
+        setVal('dataNascimento', func.nascimento || '');
+        setVal('dataAdmissao', func.dataAdmissao);
+        setVal('statusFunc', func.status || 'Ativo');
+        setVal('departamento', func.departamento);
+        setVal('cargo', func.cargo);
+        setVal('salario', func.salario);
         
         idEditando = id;
-        btnSubmit.textContent = "✨ Salvar Alterações";
-        document.querySelectorAll('.menu-item')[1].click();
+        if (btnSubmit) btnSubmit.textContent = "✨ Salvar Alterações";
+        
+        const btnAdmissao = document.querySelectorAll('.menu-item')[1];
+        if (btnAdmissao) btnAdmissao.click();
     }
 }
 
@@ -261,10 +301,11 @@ function verPerfil(id) {
 
     if (func) {
         const conteiner = document.getElementById('conteudo-perfil');
-        // Agora exibimos direto porque a máscara já formatou como R$
-        const salarioBR = func.salario; 
+        if(!conteiner) return;
+
+        const salarioBR = func.salario || 'Não informado'; 
         const dataNascFmt = func.nascimento ? formatarDataBR(func.nascimento) : 'Não informado';
-        const statusBadge = `<span class="badge badge-${func.status || 'Ativo'}">${func.status || 'Ativo'}</span>`;
+        const statusBadge = `<span class="badge badge-${(func.status || 'Ativo').replace(/\s+/g, '')}">${func.status || 'Ativo'}</span>`;
 
         let htmlDocs = '';
         if (func.documentos && func.documentos.rg) {
@@ -314,7 +355,7 @@ function exportarListaCSV() {
 
 function processarArquivo(inputElement) {
     return new Promise((resolve) => {
-        if (!inputElement.files || inputElement.files.length === 0) resolve(null);
+        if (!inputElement || !inputElement.files || inputElement.files.length === 0) resolve(null);
         else {
             const leitor = new FileReader();
             leitor.onload = (e) => resolve({ nome: inputElement.files[0].name, base64: e.target.result });
@@ -328,52 +369,58 @@ window.onload = function() {
     renderizarCalendario(); 
 };
 
-// --- SALVAR DADOS DE FUNCIONÁRIO ---
-form.addEventListener('submit', async function(event) {
-    event.preventDefault();
+// --- LÓGICA DE SALVAR ---
+if (form) {
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault();
 
-    const nome = document.getElementById('nome').value.trim();
-    const cpf = document.getElementById('cpf').value.trim();
-    const nascimento = document.getElementById('dataNascimento').value;
-    const dataAdmissao = document.getElementById('dataAdmissao').value;
-    const status = document.getElementById('statusFunc').value;
-    const departamento = document.getElementById('departamento').value.trim();
-    const cargo = document.getElementById('cargo').value.trim();
-    const salario = document.getElementById('salario').value;
+        const getVal = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
 
-    const arquivoRG = await processarArquivo(document.getElementById('docRG'));
-    const arquivoCTPS = await processarArquivo(document.getElementById('docCTPS'));
+        const nome = getVal('nome');
+        const cpf = getVal('cpf');
+        const nascimento = getVal('dataNascimento');
+        const dataAdmissao = getVal('dataAdmissao');
+        const status = getVal('statusFunc');
+        const departamento = getVal('departamento');
+        const cargo = getVal('cargo');
+        const salario = getVal('salario');
 
-    let funcSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
+        const arquivoRG = await processarArquivo(document.getElementById('docRG'));
+        const arquivoCTPS = await processarArquivo(document.getElementById('docCTPS'));
 
-    if (idEditando === null) {
-        funcSalvos.push({
-            id: Date.now(), nome, cpf, nascimento, dataAdmissao, status, departamento, cargo, salario,
-            documentos: { rg: arquivoRG, ctps: arquivoCTPS }
-        });
-        mostrarToast("Funcionário cadastrado com sucesso!");
-    } else {
-        const index = funcSalvos.findIndex(f => f.id === idEditando);
-        if (index !== -1) {
-            funcSalvos[index].nome = nome;
-            funcSalvos[index].cpf = cpf;
-            funcSalvos[index].nascimento = nascimento;
-            funcSalvos[index].dataAdmissao = dataAdmissao;
-            funcSalvos[index].status = status;
-            funcSalvos[index].departamento = departamento;
-            funcSalvos[index].cargo = cargo;
-            funcSalvos[index].salario = salario;
-            if (!funcSalvos[index].documentos) funcSalvos[index].documentos = {};
-            if (arquivoRG) funcSalvos[index].documentos.rg = arquivoRG;
-            if (arquivoCTPS) funcSalvos[index].documentos.ctps = arquivoCTPS;
+        let funcSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
+
+        if (idEditando === null) {
+            funcSalvos.push({
+                id: Date.now(), nome, cpf, nascimento, dataAdmissao, status, departamento, cargo, salario,
+                documentos: { rg: arquivoRG, ctps: arquivoCTPS }
+            });
+            mostrarToast("Funcionário cadastrado com sucesso!");
+        } else {
+            const index = funcSalvos.findIndex(f => f.id === idEditando);
+            if (index !== -1) {
+                funcSalvos[index].nome = nome;
+                funcSalvos[index].cpf = cpf;
+                funcSalvos[index].nascimento = nascimento;
+                funcSalvos[index].dataAdmissao = dataAdmissao;
+                funcSalvos[index].status = status;
+                funcSalvos[index].departamento = departamento;
+                funcSalvos[index].cargo = cargo;
+                funcSalvos[index].salario = salario;
+                if (!funcSalvos[index].documentos) funcSalvos[index].documentos = {};
+                if (arquivoRG) funcSalvos[index].documentos.rg = arquivoRG;
+                if (arquivoCTPS) funcSalvos[index].documentos.ctps = arquivoCTPS;
+            }
+            idEditando = null;
+            if (btnSubmit) btnSubmit.textContent = "✨ Salvar Dados";
+            mostrarToast("Dados atualizados com sucesso!");
         }
-        idEditando = null;
-        btnSubmit.textContent = "✨ Salvar Dados";
-        mostrarToast("Dados atualizados com sucesso!");
-    }
 
-    localStorage.setItem('listaFuncionarios', JSON.stringify(funcSalvos));
-    form.reset();
-    atualizarTabela(); 
-    document.querySelectorAll('.menu-item')[2].click();
-});
+        localStorage.setItem('listaFuncionarios', JSON.stringify(funcSalvos));
+        form.reset();
+        atualizarTabela(); 
+        
+        const btnEquipe = document.querySelectorAll('.menu-item')[2];
+        if (btnEquipe) btnEquipe.click();
+    });
+}
