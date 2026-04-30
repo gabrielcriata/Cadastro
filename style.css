@@ -12,27 +12,35 @@ body { background-color: #f4f7f6; color: #2d3748; display: flex; min-height: 100
 .aba { display: none; animation: fadeIn 0.4s ease; }
 .aba.ativa { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
 .header-tela { margin-bottom: 30px; }
 
-/* === DASHBOARD === */
 .dashboard-grid { display: flex; gap: 25px; align-items: flex-start; }
 .coluna-cards { display: flex; flex-direction: column; gap: 20px; flex: 1; }
-.coluna-ferramentas { display: flex; flex-direction: column; gap: 20px; flex: 2; }
+.coluna-ferramentas { display: flex; flex-direction: column; gap: 20px; flex: 1.5; }
 
 .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
 .card h3 { font-size: 14px; color: #718096; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;}
 .destaque-azul { font-size: 36px; font-weight: 700; color: #3182ce; }
 .destaque-laranja { font-size: 36px; font-weight: 700; color: #dd6b20; }
-
 .lista-simples { list-style: none; margin-top: 10px; font-size: 15px; }
 .lista-simples li { padding: 8px 0; border-bottom: 1px solid #edf2f7; }
 .lista-simples li:last-child { border-bottom: none; }
 
-.prazo-item { padding: 12px 15px; background-color: #ebf8fa; border-left: 4px solid #38b2ac; border-radius: 4px; margin-bottom: 10px; color: #234e52; font-size: 15px; transition: all 0.3s; }
-.notepad-container { display: flex; flex-direction: column; flex: 1; }
-#blocoNotas { width: 100%; min-height: 200px; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 15px; color: #2d3748; resize: vertical; line-height: 1.5; background-color: #fffaeb; outline: none;}
-#blocoNotas:focus { border-color: #f6ad55; box-shadow: 0 0 0 3px rgba(246, 173, 85, 0.2); }
+/* === NOVO: ESTILOS DO CALENDÁRIO === */
+.calendario-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.btn-cal { background: #edf2f7; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; color: #4a5568; transition: 0.2s; }
+.btn-cal:hover { background: #e2e8f0; }
+.dias-semana { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: 700; color: #a0aec0; margin-bottom: 10px; font-size: 14px; }
+.dias-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.dia-cal { padding: 12px 5px; text-align: center; border-radius: 6px; cursor: pointer; font-size: 14px; color: #2d3748; transition: 0.2s; position: relative; }
+.dia-cal:hover { background-color: #ebf8fa; }
+.dia-vazio { cursor: default; }
+.dia-vazio:hover { background-color: transparent; }
+.dia-hoje { background-color: #3182ce; color: white; font-weight: bold; }
+.dia-hoje:hover { background-color: #2b6cb0; }
+.dia-feriado { color: #e53e3e; font-weight: bold; }
+/* Bolinha azul para indicar que tem nota */
+.tem-nota::after { content: ''; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; background-color: #f6ad55; border-radius: 50%; }
 
 /* === FORMULÁRIO E TABELA === */
 .container, .table-container { background-color: #ffffff; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08); width: 100%; }
