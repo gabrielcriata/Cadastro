@@ -8,13 +8,17 @@ function mudarAba(evento, idAbaDestino) {
     const telas = document.querySelectorAll('.aba');
     telas.forEach(tela => tela.classList.remove('ativa'));
 
-    // 3. Adiciona a classe 'ativa' no botão clicado e na tela de destino
-    evento.target.classList.add('ativo');
+    // 3. Se o clique veio do menu lateral, marca o botão como ativo
+    if (evento && evento.target && evento.target.classList.contains('menu-item')) {
+        evento.target.classList.add('ativo');
+    }
+
+    // 4. Mostra a tela de destino
     document.getElementById(idAbaDestino).classList.add('ativa');
 }
 
 
-// --- LÓGICA DO CADASTRO E TABELA ---
+// --- LÓGICA DO CADASTRO, TABELA E PERFIL ---
 const form = document.getElementById('formFuncionario');
 const btnSubmit = document.getElementById('btnSubmit');
 
@@ -41,7 +45,7 @@ function atualizarTabela() {
             linkDoc = `<a href="${func.documento}" download="doc_${func.nome.replace(/\s+/g, '_')}" class="link-documento">Baixar</a>`;
         }
 
-        // NOVIDADE: Botão 'Ver Perfil' adicionado na frente
+        // NOVIDADE: Botão 'Ver Perfil' adicionado
         tr.innerHTML = `
             <td><strong>${func.nome}</strong></td>
             <td>${func.cpf}</td>
@@ -94,13 +98,65 @@ function prepararEdicao(id) {
     }
 }
 
-// NOVIDADE: Função base para abrir o perfil (fará o trabalho na próxima etapa)
+// NOVIDADE: Função que monta a ficha completa do funcionário e troca para a tela do perfil
 function verPerfil(id) {
-    alert("Em breve! Esta função vai abrir o perfil completo e os documentos do funcionário.");
+    let funcionariosSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
+    const func = funcionariosSalvos.find(f => f.id === id);
+
+    if (func) {
+        const conteinerPerfil = document.getElementById('conteudo-perfil');
+
+        const partesData = func.dataAdmissao.split('-');
+        const dataFormatada = partesData.length === 3 ? `${partesData[2]}/${partesData[1]}/${partesData[0]}` : func.dataAdmissao;
+        const salarioFormatado = parseFloat(func.salario).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+        // Prepara a área do documento
+        let areaDocHTML = '<p style="color: #a0aec0;">Nenhum documento anexado para este funcionário.</p>';
+        if (func.documento) {
+            areaDocHTML = `
+                <p style="margin-bottom: 15px; color: #4a5568; font-weight: 600;">Documento Armazenado</p>
+                <a href="${func.documento}" download="doc_${func.nome.replace(/\s+/g, '_')}" class="btn-cadastrar" style="display: inline-block; text-decoration: none; width: auto; padding: 10px 20px;">
+                    📥 Baixar Arquivo Anexo
+                </a>
+            `;
+        }
+
+        // Monta a ficha completa
+        conteinerPerfil.innerHTML = `
+            <h2 style="margin-bottom: 5px; font-size: 24px; color: #2b6cb0;">${func.nome}</h2>
+            <p style="color: #718096; font-size: 16px;">${func.cargo} • Departamento de ${func.departamento}</p>
+            
+            <hr style="border: none; border-top: 1px solid #edf2f7; margin: 20px 0;">
+
+            <div class="perfil-grid">
+                <div class="perfil-info">
+                    <strong>CPF</strong>
+                    <p>${func.cpf}</p>
+                </div>
+                <div class="perfil-info">
+                    <strong>Data de Admissão</strong>
+                    <p>${dataFormatada}</p>
+                </div>
+                <div class="perfil-info">
+                    <strong>Salário Bruto</strong>
+                    <p>${salarioFormatado}</p>
+                </div>
+            </div>
+
+            <div class="area-documento">
+                ${areaDocHTML}
+            </div>
+        `;
+
+        // Navega para a tela de perfil
+        mudarAba(null, 'tela-perfil');
+    }
 }
 
+// Inicia a tabela assim que a página carrega
 window.onload = atualizarTabela;
 
+// Lida com o envio do formulário de cadastro/edição
 form.addEventListener('submit', function(event) {
     event.preventDefault();
 
@@ -121,6 +177,7 @@ form.addEventListener('submit', function(event) {
         let funcionariosSalvos = JSON.parse(localStorage.getItem('listaFuncionarios')) || [];
 
         if (idEditando === null) {
+            // É um novo cadastro
             const novoFuncionario = {
                 id: Date.now(),
                 nome: nome,
@@ -133,6 +190,7 @@ form.addEventListener('submit', function(event) {
             };
             funcionariosSalvos.push(novoFuncionario);
         } else {
+            // É uma edição
             const index = funcionariosSalvos.findIndex(f => f.id === idEditando);
             if (index !== -1) {
                 funcionariosSalvos[index].nome = nome;
@@ -141,6 +199,7 @@ form.addEventListener('submit', function(event) {
                 funcionariosSalvos[index].departamento = departamento;
                 funcionariosSalvos[index].cargo = cargo;
                 funcionariosSalvos[index].salario = salario;
+                // Atualiza o documento apenas se um novo for selecionado
                 if (documentoBase64) {
                     funcionariosSalvos[index].documento = documentoBase64;
                 }
@@ -159,6 +218,7 @@ form.addEventListener('submit', function(event) {
         document.querySelectorAll('.menu-item')[2].click();
     }
 
+    // Checa se tem arquivo para converter
     if (documentoInput.files.length > 0) {
         const arquivo = documentoInput.files[0];
         const leitor = new FileReader();
